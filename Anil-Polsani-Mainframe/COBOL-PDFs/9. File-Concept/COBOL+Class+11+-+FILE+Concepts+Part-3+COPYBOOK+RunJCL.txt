@@ -1,0 +1,144 @@
+COBOL (Common Business Oriented Language) – 12-15 sessions
+--------
+Intro COBOL Program Structure          -              Division, Section & Paragraph					-- DONE	
+Variable Declarations                  -              Level Numbers, PIC clause, Data types & Size	-- DONE
+Input-Output & Arithmetic              -              VALUE CLAUSE, Accept & Display - Compute		-- DONE
+Data Movement Verbs                    -              Simple Move, Move with Of clause, Group Move & CORR	-- DONE
+Conditional Statements                 -              IF & Evaluate Statement – Continue & Next Sentence  -- DONE
+Control Sequence Verbs                 -              Perform ,STOP RUN, GOBACK, EXIT, EXIT PROGRAM, GOTO -- DONE
+File Handling                          -              OPEN, READ, WRITE, REWRITE, DELETE & CLOSE	
+Memory Saving                          -              Usage Clause, 88 Level Number, Redefines & Renames 66 LEVEL
+Array-Occurs table                     -              Search & Search All - PERFORM VARYING
+Sub-Program                            -              CALL Statement                (Static & Dynamic Call)
+String Handling Verbs                  -              String, Unstring, Inspect & Referential
+=============================================================================================================
+1. DISPLAY PGM    2. ADDPGM01 -ABEND   3. CLAIM DATA 10 VARIABLE.    4. CUSTPGM3   5. CARDPGM1    6. ACCTPGM1, ACCTPGM2
+7. ACCTPGM1 -2 FILE.   8. ASSIGMENT-(YOUTUBE CHANNEL-COBOL-11)
+=============================================================================================================
+COBOL CLASS 11:-
+=============================================
+COBOL ->  COPYBOOK
+
+COPYBOOK -->  PIECE OF COBOL CODE , STORED IN ANOTHER PDS, CAN BE USED IN MANY PGM.
+
+	--> RE-USEABLILITY 	-> CODE 1 TIME - USE IN MNAY PGM
+		
+		WE HAVE TO CODE THE SAME CODE IN MANY PGM	--> OPTION-1	-> WE CAN CODE IN EACH PGM
+													  2 -> CODE IT 1 TIME AND USE IT MANY PGM   -- BETTER
+
+		EXAMPLE: -> FILE LAYOUT	-	 ==>  IF U HAVE A FILE -> FIXED LAYOUT
+								 ==> IF THIS FILE IS USED IN ANY PGM => WE NEED TO DEFINE THE LAYOUT -> FILE SECTION.
+
+ALL FILE LAYOUT - WE KEEP IN COPYBOOK:
+
+			1. CREATE A NEW PDS 	--> 3.2 - FB ->	IBMUSER.T5.COPYLIB
+			2. CREATE A NEW MEMBER ->  CODE THE RECORD LAYOUT OF THE FILES
+			3. ANY COBOL PGM -> 
+								COPY COPYBOOK-NAME.					COPY - COBOL  ,  INCLUDE = DB2 COPYBOOK
+
+				COPY ACCTCPY1                                         	
+        				REPLACING  ACCT-DETAILS  BY  ACCT-DETAILS-OUT.
+
+			4. IN COMPILATION:		== //SYSLIB**  	-> PROVIDE THE COPYBOOK LIB NAME
+	
+			5- INFORMATION ->  WHEN U COMPILE - COMPILER   GET SRC CODE + COPYBOOK -->  LOAD MODULES
+
+IN THE SPOOL - SYSPRINT -
+
+000018                COPY ACCTCPY1                                         
+000019                        REPLACING  ACCT-DETAILS  BY  ACCT-DETAILS-OUT.
+000020C               01  ACCT-DETAILS-OUT.                                 
+000021C                  03 ACCT-NUMBER   PIC    X(05).                     
+000022C                  03 CUST-NAME     PIC    X(10).                     
+000023C                  03 ACCT-BAL      PIC   S9(03)V9(02).               
+000024C                  03 ACCT-TYPE     PIC    X(10).               		--> THIS COPYBOOK CODE - KNOW AS - COPYBOOK EXPANSION      
+
+
+	2. HOW TO EDIT A COPYBOOK **: 
+
+		INTERVIEW -- I NEED TO CHANGE A CODE IN COPYBOOK , HOW TO DO..
+
+				1. ANALYSIS -- SEARCH FOR THE COPYBOOK ,USED IN PGM'S
+							===>  OPEN PROJECT COBOL PDS -->  SRCHFOR COPYBOOK-NAME ---> FIND ALL PGM THAT USES THE COPYBOOK
+				2. OPEN ALL PGM , LOOK FOR THE COPYBOOK NAME, IF REALLY USED - LIST ALL THE PGM'S AS NEEDED.
+				3. ONCE THE LIST IS PREPARED -> ESTIMATE OF THE CHANGE 
+				4. CHANGE THE COPYBOOK CODE --> RE-COMPILE ALL PGM THAT IS USING THIS COPYBOOK
+				5. IMPLEMENT /DEPLOY -> THE COPYBOOK & ALSO ALL PGM THAT ARE EFFECT.
+
+==== 
+ACCTPGM1 -- ACCTPGM2  -> RUN JCL**
+---
+
+ACCTPGM1:	---> INPUT -ACCEPT  -- OUTPUT WRITE - FILE (-DDNAME -ACCTDD01)
+ACCTPGM2: -->  INPUT -> ACCTFILE -READ ---> OUTPUT  > SAVING , CURRENT -> WRITE (DDNAME-
+
+//IBMUSERX JOB NOTIFY=&SYSUID
+//STEP1   EXEC PGM=ACCTPGM1
+//STEPLIB   DD DSN=IBMUSER.T5.LOAD,DISP=SHR
+//SYSPRINT  DD SYSOUT=*
+//SYSOUT    DD SYSOUT=*
+//*INPUT - OUTPUT  FILES
+//ACCTDD01  DD  	DSN=IBMUSER.T5.ACCT.FILE,DISP=(NEW,CATLG,DELETE),
+//   UNIT=3390,VOL=SER=JASYS1,					NEW LINE SHOULD START B/W  4TH COL - 16TH COL
+//   SPACE=(TRK,(1,1),RLSE),
+//   DSORG=PS,LRECL=XX,RECFM=FB,BLKSIZE=0
+//SYSIN  DD *
+VAL-INPUT
+..
+/*
+//
+
+NEW FILE ->  1. DSN , 2. DISP =(NEW,) .3. LOACTION....
+-
+EXISTING FILE ->  1. DSN - NAME    2. DISP= STATUS
+
+		INPUT FILE -> 	//DDNAME   DD  DSN=INPUT.FILE.NAME,DISP=SHR		-> SHR > SHARE - UR PGM USING THE FILE AS INPUT,
+																					OTHER PGM CAN ALSO USE FOR INPUT.
+
+		3.2 -> NEW PDS/DATASET		->  1. NAME   2. LOCATION   3. SPACE   4. ATTRIBUTE 
+
+ FILE =- DD PARAMETER:
+
+				1. DSN==> DATASET NAME -> PROVIDE THE DATASET NAME.
+				2. DISP=
+						DISP=(STATUS,ON SUCCESS-ERROR, ON ABNED)
+
+					NEW:		DISP=(NEW,CATLG,DELETE)		--> NEW FILE, ON SUCCESS-SAVE THE FILE , ON ABEND -DELETE 
+									---
+							DISP=(NEW,CATLG,CATLG)		--> NEW FILE -- ON SUCCESS/ABEND -> SAVE THE FILE
+							DISP=(NEW,DELETE,DELETE)	--> NEW FILE -- ON SUCCESS/ABEND -> DELETE THE FILE
+							DISP=(NEW,PASS)			--> NEW FILE --> ON SUCCESS -> PASS THE FILE TO NEXT STEP , FAILED = DELETE IT
+
+				3. LOCATION  -->  UNIT=3390/SYSDA  , VOL=SER=JASYS1
+
+				4. SPACE		->4 POINT		1. UNIT OF SPACE 	> TRACK/TRK - CYLINDER /CYL
+										2. PQ  -> FIXED ->  1
+										3. SQ  -> VARYING -> *15 => 1			MIN=1 , MAX=16
+										4. DB -> ONLY FOR PDS 
+						SYNATX:
+								SPACE=(UNITS,(PQ,SQ),RLSE)  --> RLSE -> RELASE UNUSED SPACE FOR THE DATASET.	
+
+							EX: 	PS ->  SPACE=(TRK,(1,1),RLSE)
+							
+
+				5. ATTRIBUTE:		1. TYPE							PDS						DSORG=PS
+								2. RECORD FORMAT				FB/ U						RECFM=FB / VB
+								3. RECORD LENGTH				80							LRECL= TOTAL LENGTH OF THE LAYOUT.
+								4. BLOCK SIZE					800							BLKSIZE=0 (ALWAYS)
+
+---
+LAST POINT ->  WE DONT SEE THE  DATA IN FILE - USING 3.4  (NOT SO READABLE..)
+	
+	-- FILE MANAGEMENT TOOL	-->  	1. FILE MANAGER     2. FILE-AID   3. FILE MASTER
+
+			TO SEE THE DATA -> 2 THINGS		1. DATA FILE  + COPYBOOK
+										2. FILE -TOOL
+
+	SOFTWARE -> FILE MANAGER 		--> ISPF ->  OPTION = M  , OPTION - 13 =FMN  -> OPTION  1 -VIEW 
+
+					-->  1. INPUT FILE -> 		IBMUSER.T5.SAVE.FILE
+						2.  COPYBOOK 			IBMUSER.T5.COPYLIB  -> ACCTCPY1
+						3.  OPTION ->  1 -ABOVE 
+
+			-> ENTER --
+
