@@ -1,0 +1,510 @@
+       01  POLCMAPI.
+           02  FILLER PIC X(12).
+           02  TRANIDL    COMP  PIC  S9(4).
+           02  TRANIDF    PICTURE X.
+           02  FILLER REDEFINES TRANIDF.
+             03 TRANIDA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  TRANIDI  PIC X(4).
+           02  DATEL    COMP  PIC  S9(4).
+           02  DATEF    PICTURE X.
+           02  FILLER REDEFINES DATEF.
+             03 DATEA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  DATEI  PIC X(10).
+           02  TIMEL    COMP  PIC  S9(4).
+           02  TIMEF    PICTURE X.
+           02  FILLER REDEFINES TIMEF.
+             03 TIMEA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  TIMEI  PIC X(10).
+           02  PAGENOL    COMP  PIC  S9(4).
+           02  PAGENOF    PICTURE X.
+           02  FILLER REDEFINES PAGENOF.
+             03 PAGENOA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  PAGENOI  PIC X(2).
+           02  POLCYIDL    COMP  PIC  S9(4).
+           02  POLCYIDF    PICTURE X.
+           02  FILLER REDEFINES POLCYIDF.
+             03 POLCYIDA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  POLCYIDI  PIC X(13).
+           02  SNO1L    COMP  PIC  S9(4).
+           02  SNO1F    PICTURE X.
+           02  FILLER REDEFINES SNO1F.
+             03 SNO1A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNO1I  PIC X(2).
+           02  CLAIMN1L    COMP  PIC  S9(4).
+           02  CLAIMN1F    PICTURE X.
+           02  FILLER REDEFINES CLAIMN1F.
+             03 CLAIMN1A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMN1I  PIC X(10).
+           02  CLAIMT1L    COMP  PIC  S9(4).
+           02  CLAIMT1F    PICTURE X.
+           02  FILLER REDEFINES CLAIMT1F.
+             03 CLAIMT1A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMT1I  PIC X(10).
+           02  CLAIMS1L    COMP  PIC  S9(4).
+           02  CLAIMS1F    PICTURE X.
+           02  FILLER REDEFINES CLAIMS1F.
+             03 CLAIMS1A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMS1I  PIC X(10).
+           02  CLAIMA1L    COMP  PIC  S9(4).
+           02  CLAIMA1F    PICTURE X.
+           02  FILLER REDEFINES CLAIMA1F.
+             03 CLAIMA1A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMA1I  PIC X(6).
+           02  CLAIMD1L    COMP  PIC  S9(4).
+           02  CLAIMD1F    PICTURE X.
+           02  FILLER REDEFINES CLAIMD1F.
+             03 CLAIMD1A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMD1I  PIC X(15).
+           02  SNO2L    COMP  PIC  S9(4).
+           02  SNO2F    PICTURE X.
+           02  FILLER REDEFINES SNO2F.
+             03 SNO2A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNO2I  PIC X(2).
+           02  CLAIMN2L    COMP  PIC  S9(4).
+           02  CLAIMN2F    PICTURE X.
+           02  FILLER REDEFINES CLAIMN2F.
+             03 CLAIMN2A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMN2I  PIC X(10).
+           02  CLAIMT2L    COMP  PIC  S9(4).
+           02  CLAIMT2F    PICTURE X.
+           02  FILLER REDEFINES CLAIMT2F.
+             03 CLAIMT2A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMT2I  PIC X(10).
+           02  CLAIMS2L    COMP  PIC  S9(4).
+           02  CLAIMS2F    PICTURE X.
+           02  FILLER REDEFINES CLAIMS2F.
+             03 CLAIMS2A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMS2I  PIC X(10).
+           02  CLAIMA2L    COMP  PIC  S9(4).
+           02  CLAIMA2F    PICTURE X.
+           02  FILLER REDEFINES CLAIMA2F.
+             03 CLAIMA2A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMA2I  PIC X(6).
+           02  CLAIMD2L    COMP  PIC  S9(4).
+           02  CLAIMD2F    PICTURE X.
+           02  FILLER REDEFINES CLAIMD2F.
+             03 CLAIMD2A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMD2I  PIC X(15).
+           02  SNO3L    COMP  PIC  S9(4).
+           02  SNO3F    PICTURE X.
+           02  FILLER REDEFINES SNO3F.
+             03 SNO3A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNO3I  PIC X(2).
+           02  CLAIMN3L    COMP  PIC  S9(4).
+           02  CLAIMN3F    PICTURE X.
+           02  FILLER REDEFINES CLAIMN3F.
+             03 CLAIMN3A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMN3I  PIC X(10).
+           02  CLAIMT3L    COMP  PIC  S9(4).
+           02  CLAIMT3F    PICTURE X.
+           02  FILLER REDEFINES CLAIMT3F.
+             03 CLAIMT3A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMT3I  PIC X(10).
+           02  CLAIMS3L    COMP  PIC  S9(4).
+           02  CLAIMS3F    PICTURE X.
+           02  FILLER REDEFINES CLAIMS3F.
+             03 CLAIMS3A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMS3I  PIC X(10).
+           02  CLAIMA3L    COMP  PIC  S9(4).
+           02  CLAIMA3F    PICTURE X.
+           02  FILLER REDEFINES CLAIMA3F.
+             03 CLAIMA3A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMA3I  PIC X(6).
+           02  CLAIMD3L    COMP  PIC  S9(4).
+           02  CLAIMD3F    PICTURE X.
+           02  FILLER REDEFINES CLAIMD3F.
+             03 CLAIMD3A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMD3I  PIC X(15).
+           02  SNO4L    COMP  PIC  S9(4).
+           02  SNO4F    PICTURE X.
+           02  FILLER REDEFINES SNO4F.
+             03 SNO4A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNO4I  PIC X(2).
+           02  CLAIMN4L    COMP  PIC  S9(4).
+           02  CLAIMN4F    PICTURE X.
+           02  FILLER REDEFINES CLAIMN4F.
+             03 CLAIMN4A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMN4I  PIC X(10).
+           02  CLAIMT4L    COMP  PIC  S9(4).
+           02  CLAIMT4F    PICTURE X.
+           02  FILLER REDEFINES CLAIMT4F.
+             03 CLAIMT4A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMT4I  PIC X(10).
+           02  CLAIMS4L    COMP  PIC  S9(4).
+           02  CLAIMS4F    PICTURE X.
+           02  FILLER REDEFINES CLAIMS4F.
+             03 CLAIMS4A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMS4I  PIC X(10).
+           02  CLAIMA4L    COMP  PIC  S9(4).
+           02  CLAIMA4F    PICTURE X.
+           02  FILLER REDEFINES CLAIMA4F.
+             03 CLAIMA4A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMA4I  PIC X(6).
+           02  CLAIMD4L    COMP  PIC  S9(4).
+           02  CLAIMD4F    PICTURE X.
+           02  FILLER REDEFINES CLAIMD4F.
+             03 CLAIMD4A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMD4I  PIC X(15).
+           02  SNO5L    COMP  PIC  S9(4).
+           02  SNO5F    PICTURE X.
+           02  FILLER REDEFINES SNO5F.
+             03 SNO5A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNO5I  PIC X(2).
+           02  CLAIMN5L    COMP  PIC  S9(4).
+           02  CLAIMN5F    PICTURE X.
+           02  FILLER REDEFINES CLAIMN5F.
+             03 CLAIMN5A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMN5I  PIC X(10).
+           02  CLAIMT5L    COMP  PIC  S9(4).
+           02  CLAIMT5F    PICTURE X.
+           02  FILLER REDEFINES CLAIMT5F.
+             03 CLAIMT5A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMT5I  PIC X(10).
+           02  CLAIMS5L    COMP  PIC  S9(4).
+           02  CLAIMS5F    PICTURE X.
+           02  FILLER REDEFINES CLAIMS5F.
+             03 CLAIMS5A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMS5I  PIC X(10).
+           02  CLAIMA5L    COMP  PIC  S9(4).
+           02  CLAIMA5F    PICTURE X.
+           02  FILLER REDEFINES CLAIMA5F.
+             03 CLAIMA5A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMA5I  PIC X(6).
+           02  CLAIMD5L    COMP  PIC  S9(4).
+           02  CLAIMD5F    PICTURE X.
+           02  FILLER REDEFINES CLAIMD5F.
+             03 CLAIMD5A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMD5I  PIC X(15).
+           02  SNO6L    COMP  PIC  S9(4).
+           02  SNO6F    PICTURE X.
+           02  FILLER REDEFINES SNO6F.
+             03 SNO6A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNO6I  PIC X(2).
+           02  CLAIMN6L    COMP  PIC  S9(4).
+           02  CLAIMN6F    PICTURE X.
+           02  FILLER REDEFINES CLAIMN6F.
+             03 CLAIMN6A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMN6I  PIC X(10).
+           02  CLAIMT6L    COMP  PIC  S9(4).
+           02  CLAIMT6F    PICTURE X.
+           02  FILLER REDEFINES CLAIMT6F.
+             03 CLAIMT6A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMT6I  PIC X(10).
+           02  CLAIMS6L    COMP  PIC  S9(4).
+           02  CLAIMS6F    PICTURE X.
+           02  FILLER REDEFINES CLAIMS6F.
+             03 CLAIMS6A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMS6I  PIC X(10).
+           02  CLAIMA6L    COMP  PIC  S9(4).
+           02  CLAIMA6F    PICTURE X.
+           02  FILLER REDEFINES CLAIMA6F.
+             03 CLAIMA6A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMA6I  PIC X(6).
+           02  CLAIMD6L    COMP  PIC  S9(4).
+           02  CLAIMD6F    PICTURE X.
+           02  FILLER REDEFINES CLAIMD6F.
+             03 CLAIMD6A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMD6I  PIC X(15).
+           02  SNO7L    COMP  PIC  S9(4).
+           02  SNO7F    PICTURE X.
+           02  FILLER REDEFINES SNO7F.
+             03 SNO7A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNO7I  PIC X(2).
+           02  CLAIMN7L    COMP  PIC  S9(4).
+           02  CLAIMN7F    PICTURE X.
+           02  FILLER REDEFINES CLAIMN7F.
+             03 CLAIMN7A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMN7I  PIC X(10).
+           02  CLAIMT7L    COMP  PIC  S9(4).
+           02  CLAIMT7F    PICTURE X.
+           02  FILLER REDEFINES CLAIMT7F.
+             03 CLAIMT7A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMT7I  PIC X(10).
+           02  CLAIMS7L    COMP  PIC  S9(4).
+           02  CLAIMS7F    PICTURE X.
+           02  FILLER REDEFINES CLAIMS7F.
+             03 CLAIMS7A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMS7I  PIC X(10).
+           02  CLAIMA7L    COMP  PIC  S9(4).
+           02  CLAIMA7F    PICTURE X.
+           02  FILLER REDEFINES CLAIMA7F.
+             03 CLAIMA7A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMA7I  PIC X(6).
+           02  CLAIMD7L    COMP  PIC  S9(4).
+           02  CLAIMD7F    PICTURE X.
+           02  FILLER REDEFINES CLAIMD7F.
+             03 CLAIMD7A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMD7I  PIC X(15).
+           02  SNO8L    COMP  PIC  S9(4).
+           02  SNO8F    PICTURE X.
+           02  FILLER REDEFINES SNO8F.
+             03 SNO8A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNO8I  PIC X(2).
+           02  CLAIMN8L    COMP  PIC  S9(4).
+           02  CLAIMN8F    PICTURE X.
+           02  FILLER REDEFINES CLAIMN8F.
+             03 CLAIMN8A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMN8I  PIC X(10).
+           02  CLAIMT8L    COMP  PIC  S9(4).
+           02  CLAIMT8F    PICTURE X.
+           02  FILLER REDEFINES CLAIMT8F.
+             03 CLAIMT8A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMT8I  PIC X(10).
+           02  CLAIMS8L    COMP  PIC  S9(4).
+           02  CLAIMS8F    PICTURE X.
+           02  FILLER REDEFINES CLAIMS8F.
+             03 CLAIMS8A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMS8I  PIC X(10).
+           02  CLAIMA8L    COMP  PIC  S9(4).
+           02  CLAIMA8F    PICTURE X.
+           02  FILLER REDEFINES CLAIMA8F.
+             03 CLAIMA8A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMA8I  PIC X(6).
+           02  CLAIMD8L    COMP  PIC  S9(4).
+           02  CLAIMD8F    PICTURE X.
+           02  FILLER REDEFINES CLAIMD8F.
+             03 CLAIMD8A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMD8I  PIC X(15).
+           02  SNO9L    COMP  PIC  S9(4).
+           02  SNO9F    PICTURE X.
+           02  FILLER REDEFINES SNO9F.
+             03 SNO9A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNO9I  PIC X(2).
+           02  CLAIMN9L    COMP  PIC  S9(4).
+           02  CLAIMN9F    PICTURE X.
+           02  FILLER REDEFINES CLAIMN9F.
+             03 CLAIMN9A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMN9I  PIC X(10).
+           02  CLAIMT9L    COMP  PIC  S9(4).
+           02  CLAIMT9F    PICTURE X.
+           02  FILLER REDEFINES CLAIMT9F.
+             03 CLAIMT9A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMT9I  PIC X(10).
+           02  CLAIMS9L    COMP  PIC  S9(4).
+           02  CLAIMS9F    PICTURE X.
+           02  FILLER REDEFINES CLAIMS9F.
+             03 CLAIMS9A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMS9I  PIC X(10).
+           02  CLAIMA9L    COMP  PIC  S9(4).
+           02  CLAIMA9F    PICTURE X.
+           02  FILLER REDEFINES CLAIMA9F.
+             03 CLAIMA9A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMA9I  PIC X(6).
+           02  CLAIMD9L    COMP  PIC  S9(4).
+           02  CLAIMD9F    PICTURE X.
+           02  FILLER REDEFINES CLAIMD9F.
+             03 CLAIMD9A    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMD9I  PIC X(15).
+           02  SNOAL    COMP  PIC  S9(4).
+           02  SNOAF    PICTURE X.
+           02  FILLER REDEFINES SNOAF.
+             03 SNOAA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNOAI  PIC X(2).
+           02  CLAIMNAL    COMP  PIC  S9(4).
+           02  CLAIMNAF    PICTURE X.
+           02  FILLER REDEFINES CLAIMNAF.
+             03 CLAIMNAA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMNAI  PIC X(10).
+           02  CLAIMTAL    COMP  PIC  S9(4).
+           02  CLAIMTAF    PICTURE X.
+           02  FILLER REDEFINES CLAIMTAF.
+             03 CLAIMTAA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMTAI  PIC X(10).
+           02  CLAIMSAL    COMP  PIC  S9(4).
+           02  CLAIMSAF    PICTURE X.
+           02  FILLER REDEFINES CLAIMSAF.
+             03 CLAIMSAA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMSAI  PIC X(10).
+           02  CLAIMAAL    COMP  PIC  S9(4).
+           02  CLAIMAAF    PICTURE X.
+           02  FILLER REDEFINES CLAIMAAF.
+             03 CLAIMAAA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMAAI  PIC X(6).
+           02  CLAIMDAL    COMP  PIC  S9(4).
+           02  CLAIMDAF    PICTURE X.
+           02  FILLER REDEFINES CLAIMDAF.
+             03 CLAIMDAA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMDAI  PIC X(15).
+           02  SNOBL    COMP  PIC  S9(4).
+           02  SNOBF    PICTURE X.
+           02  FILLER REDEFINES SNOBF.
+             03 SNOBA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNOBI  PIC X(2).
+           02  CLAIMNBL    COMP  PIC  S9(4).
+           02  CLAIMNBF    PICTURE X.
+           02  FILLER REDEFINES CLAIMNBF.
+             03 CLAIMNBA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMNBI  PIC X(10).
+           02  CLAIMTBL    COMP  PIC  S9(4).
+           02  CLAIMTBF    PICTURE X.
+           02  FILLER REDEFINES CLAIMTBF.
+             03 CLAIMTBA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMTBI  PIC X(10).
+           02  CLAIMSBL    COMP  PIC  S9(4).
+           02  CLAIMSBF    PICTURE X.
+           02  FILLER REDEFINES CLAIMSBF.
+             03 CLAIMSBA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMSBI  PIC X(10).
+           02  CLAIMABL    COMP  PIC  S9(4).
+           02  CLAIMABF    PICTURE X.
+           02  FILLER REDEFINES CLAIMABF.
+             03 CLAIMABA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMABI  PIC X(6).
+           02  CLAIMDBL    COMP  PIC  S9(4).
+           02  CLAIMDBF    PICTURE X.
+           02  FILLER REDEFINES CLAIMDBF.
+             03 CLAIMDBA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMDBI  PIC X(15).
+           02  SNOCL    COMP  PIC  S9(4).
+           02  SNOCF    PICTURE X.
+           02  FILLER REDEFINES SNOCF.
+             03 SNOCA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  SNOCI  PIC X(2).
+           02  CLAIMNCL    COMP  PIC  S9(4).
+           02  CLAIMNCF    PICTURE X.
+           02  FILLER REDEFINES CLAIMNCF.
+             03 CLAIMNCA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMNCI  PIC X(10).
+           02  CLAIMTCL    COMP  PIC  S9(4).
+           02  CLAIMTCF    PICTURE X.
+           02  FILLER REDEFINES CLAIMTCF.
+             03 CLAIMTCA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMTCI  PIC X(10).
+           02  CLAIMSCL    COMP  PIC  S9(4).
+           02  CLAIMSCF    PICTURE X.
+           02  FILLER REDEFINES CLAIMSCF.
+             03 CLAIMSCA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMSCI  PIC X(10).
+           02  CLAIMACL    COMP  PIC  S9(4).
+           02  CLAIMACF    PICTURE X.
+           02  FILLER REDEFINES CLAIMACF.
+             03 CLAIMACA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMACI  PIC X(6).
+           02  CLAIMDCL    COMP  PIC  S9(4).
+           02  CLAIMDCF    PICTURE X.
+           02  FILLER REDEFINES CLAIMDCF.
+             03 CLAIMDCA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  CLAIMDCI  PIC X(15).
+           02  MESSAGEL    COMP  PIC  S9(4).
+           02  MESSAGEF    PICTURE X.
+           02  FILLER REDEFINES MESSAGEF.
+             03 MESSAGEA    PICTURE X.
+           02  FILLER   PICTURE X(1).
+           02  MESSAGEI  PIC X(70).
+       01  POLCMAPO REDEFINES POLCMAPI.
+           02  FILLER PIC X(12).
+           02  FILLER PICTURE X(3).
+           02  TRANIDC    PICTURE X.
+           02  TRANIDO  PIC X(4).
+           02  FILLER PICTURE X(3).
+           02  DATEC    PICTURE X.
+           02  DATEO  PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  TIMEC    PICTURE X.
+           02  TIMEO  PIC X(10).
+           02  FILLER PICTURE X(3).
+           02  PAGENOC    PICTURE X.
+           02  PAGENOO  PIC X(2).
+           02  FILLER PICTURE X(3).
+           02  POLCYIDC    PICTURE X.
+           02  POLCYIDO  PIC X(13).
+           02  CLAIM-DETAILS OCCURS 12 TIMES.
+            05  FILLER PICTURE X(3).
+            05  SNOC    PICTURE X.
+            05  SNOO  PIC X(2).
+            05  FILLER PICTURE X(3).
+            05  CLAIMNC    PICTURE X.
+            05  CLAIMNO  PIC X(10).
+            05  FILLER PICTURE X(3).
+            05  CLAIMTC    PICTURE X.
+            05  CLAIMTO  PIC X(10).
+            05  FILLER PICTURE X(3).
+            05  CLAIMSC    PICTURE X.
+            05  CLAIMSO  PIC X(10).
+            05  FILLER PICTURE X(3).
+            05  CLAIMAC    PICTURE X.
+            05  CLAIMAO  PIC X(6).
+            05  FILLER PICTURE X(3).
+            05  CLAIMDC    PICTURE X.
+            05  CLAIMDO  PIC X(15).
+           02  FILLER PICTURE X(3).
+           02  MESSAGEC    PICTURE X.
+           02  MESSAGEO  PIC X(70).
+

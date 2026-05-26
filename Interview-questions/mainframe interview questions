@@ -1,0 +1,105 @@
+Interview Questions:
+====================
+mock interview link - https://www.youtube.com/watch?v=tRTNbH9hjCc
+					- https://www.youtube.com/watch?v=SWdnLvJBBBU&list=PLyG0_gwTUf0NxS1FqF4hH34svN285OuBY
+
+- Converting all upper to lower case in JCL and COBOL.
+	JCl
+		SORT FIELDS=(1,10,CH,A)
+		OUTREC FIELDS=(1,10,TRAN=UTOL)
+
+	COBOL
+		MOVE FUNTION LOWER-CASE ws-var1 TO ws-var2.
+						OR
+		INSPECT ws-var1 
+			REPLACING ALL 
+			'A' BY 'a'
+			'B' BY 'b'
+			....
+
+- Count the characters in the string:
+	INSPECT WS-TEMP-STRING TALLYING WS-LENGTH FOR ALL CHARACTERS.
+				OR
+	MOVE FUNCTION LENGTH(WS-STRING) TO WS-LENGTH.
+
+- VSAM File status code:
+	02 - Non-unique alternate index duplicate key found
+	21 - Sequence err while performing WRITE
+	22 - Primary duplicate key found
+	23 - Record not found or File not found
+	24 - Key outside boundary of file
+	35 - File not opened
+	92 - Opening a opened file
+	98 - File is locked - Open failed
+
+- What do you mean by abends in JCL? Write different JCL abend codes.
+	When a programme ends abnormally during a step, it is called an abend. 
+		S0C1: Missing or misspelled DD name / Called subprogram not found
+		S0C4: Read/Write to unopened file
+		S0C5: Closing unopened file
+		S0C7: Is caused by bad data / Numeric operation performed on alphabetic field
+		S222: When an operator cancels a job because the programme seeks a resource that is unavailable, this error occurs.
+		S322: The time allotted to a job, job step, or procedure has exceeded the limit, resulting in a Timeout error.
+		S237: When the volume's end is reached, this error occurs.
+		Space Issue:
+			SB37: max. 16 extents are currently allocated 
+			SD37: the secondary allocation has not been specified
+			SE37: End of volume with no further volume specified
+		S806: Load module not foung in JOBLIB/STEPLIB
+
+- 1 Block contains 32KB -> 6 Blocks makes 1 Track -> 15 Tracks make 1 cylinder
+
+- referback in JCl is done using * symbol, if you want to create a new dataset with same parameters as input file we can use *.DD_name in any of the DD parameters.
+
+==========================================================================================================================================================
+
+DB2 Interview Questions:
+========================
+- SQLCODES:
+	- 471: Duplicate cursor name
+	- 502: Cursor not opened
+	- 503: Cursor opened already
+
+	- 612: Duplicate column name
+
+	- 803: Trying to insert duplicate records
+	- 805: Binding issue, DBRM is not binded properly with the plan
+	- 811: Select returned more than 1 row (Define a cursor)
+	- 818: timestamp mismatch in load module and plan (do a re-bind)
+
+	- 904: Resource not available
+	- 911: deadlock or timeout, transaction is rolled back
+	- 913: deadlock or timeout, unsucessful execution
+	- 922: Authorization issue
+
+- What is a buffer pool DB2?
+	A buffer pool is an area of main memory that has been allocated by the database manager for the purpose of caching table and index data as it is read from disk. Every Db2 database must have a buffer pool. Each new database has a default buffer pool defined, called IBMDEFAULTBP.
+
+- What are sub languages of SQL or categories of SQL?
+	DDL (Data Definition Language) 		- CREATE, ALTER, DROP 
+	DML (Data Manipulation Language) 	- SELECT, UPDATE, INSERT, DELETE
+	DCL (Data Control Language) 		- GRANK, REVOKE
+	TCL (Tansaction Control Language)	- COMMIT, ROLLBACK
+
+- Diff types of tablespaces:
+	- Simple tablespace
+	- Segmented tablespace
+	- Partitioned tablespace
+
+- Max number of columns in DB2 -> 224
+
+- How many subqueries can you combine together -> 15
+
+- B37 abend during spufi -> Space requirements
+
+- Max number of rows per page -> 127
+
+- Max length of SQLCA -> 136
+
+Now we need to add a restart logic in case of failure based on below condition:
+1. use checkpoint value to store the last committed record on DB with the commit frequency as 10 . This will be an insert to restart table.
+2. For every next commit it will be an update on the restart table with the new checkpoint
+3. Use customer id to read the data from the checkpoint tables to baseline the next restart
+4. Read the file and ignore the records till the checkpoint id and start process after that
+5. Use commit at the end of the program just to make sure all the records are committed after the last commit.
+6. Post completion of the normal job/failed  job remove the entry from restart table for the entry made of that instance
