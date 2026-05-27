@@ -1,0 +1,916 @@
+PL/1 BASICS:
+============
+
+- PL/1 is a legacy high level procedure language suitable for commercial, engineering and scientific application.
+- PL/1 main domains are data processing, numerical computation, scientific calculation and system program.
+
+- PL/1 Program Structure:
+ - Every PL/1 application is collection of load modules which has one or more compilation units.
+ - A compilation unit maybe a PL/1 package or an external procedure.
+ - Each package can contain 0 or more procedures
+ - PL/1 is a block structure language, procedure can contain zero or more blocks
+ - Blocks can be either procedure block or begin block
+ - Block may have 0 or more groups
+ - Groups are collection of statements which can be either executed or bypassed
+ - Statements are collection of identifiers, Delimiters, Operators, Constants
+ - Final indivisible part of PL/1 is characters
+
+Application
+ └── Load Modules ()
+     └── Compilation Units (a single PL/1 program)
+         ├── Package
+         │    └── Procedures
+         │         └── Blocks
+         │              └── Groups
+         │                   └── Statements
+         │                        └── Characters
+         └── External Procedure
+
+- Features of PL/1:
+ - High level procedural language
+ - It's free form language with no reserved words
+ - Block oriented language consisting elements like packages, begin blocks and statements, this type of structure allows programmer to produce highly modular applications
+ - It consist of several built-in functions like arithmetic, mathematical, array handling, string handling, condition handling, storage control.
+ - Dynamic memory allocation, it contains built-in functions to allocate and de-allocate memory at runtime
+ - Powerful exception handling facilities
+
+- PL/1 Coding structure:
+ - Columns
+- 1 : Reserved for use by OS
+  - 2-72: Code PL/1 statements
+- 73-80: System generated number which is ignored by compiler
+
+- PL/1 Program:
+ DEMO01: PROCEDURE OPTIONS(MAIN);
+PUT('HELLO WORLD')
+ END DEMO01;
+
+- Compilation is done using utility IBMZPLI, then link edit happens via utility IEWL.
+
+- PL/1 Variables:
+ DEMO02: PROCEDURE OPTION(MAIN);
+DCL CUST_NAME CHAR(10) INIT('ANUBHAV');
+DCL CUST_ID FIXED DECIMAL(4) INIT(1001);
+DCL BALANCE FLOAT DECIMAL(6) INIT(1000.38);
+DCL EMAIL PIC '(20)X' INIT('AKS@GMAIL.COM');
+DCL EMAIL2 CHAR(20) INIT('AKS@GMAIL.COM');
+
+
+PUT SKIP LIST('CUST NAME: ', CUST_NAME);
+PUT SKIP LIST('CUST ID: ', CUST_ID);
+PUT SKIP LIST('BALANCE: ' || BALANCE);
+PUT SKIP LIST('EMAIL: ' || EMAIL);
+ END DEMO02;
+
+
+- FIXED DECIMAL → exact, fixed scale
+  FLOAT DECIMAL → flexible scale, large range, approximate
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+CONTROL STRUCTURE:
+==================
+
+- It is of 2 types Conditional and Iterative Statement
+- DO ... END; or BEGIN ... END; is used when more than 1 statement is coded in IF Block or ELSE Block or SELECT Block respectively.
+
+- Conditional Statement:
+ - IF
+ DEMO03: PROCEDURE OPTIONS(MAIN);
+DCL CUST_NAME CHAR(10) INIT('ANUBHAV');
+DCL CUST_ID FIXED DECIMAL(4) INIT(1001);
+DCL BALANCE FLOAT DECIMAL(6) INIT(1000.38);
+DCL EMAIL PIC '(20)X' INIT('AKS@GMAIL.COM');
+DCL ACCOUNT_TYP CHAR(2);
+DCL INPUT PIC '(3)A' INIT('END');
+
+IF BALANCE > 500 & CUST_NAME = 'ANUBHAV' THEN
+DO;
+PUT SKIP LIST('ANUBHAV HAS ENOUGH BALANCE');
+END;
+ELSE
+BEGIN; 
+PUT SKIP LIST('ANUBHAV HAS NOT ENOUGH BALANCE');
+END;
+ - SELECT
+GET (ACCOUNT_TYP);
+SELECT(ACCOUNT_TYP)
+WHEN('SB')
+PUT SKIP LIST('SAVING ACCOUNT')
+WHEN('RD')
+PUT SKIP LIST('RECURRING ACCOUNT')
+WHEN('CB')
+PUT SKIP LIST('CURRENT ACCOUNT')
+OTHERWISE
+PUT SKIP LIST('INVALID ACCOUNT TYPE')
+END;
+
+- Iterative Statement
+ - DO
+DO I=1 TO 5 BY 1 | DO I=5 TO 1 BY -1
+BEGIN;
+PUT SKIP LIST('I: ' || I); //1 2 3 4 5
+END;
+END;
+
+ - DO WHILE
+DO WHILE(INPUT!='END')
+BEGIN;
+PUT SKIP LIST('INPUT IS:',INPUT);
+END;
+END;
+
+ - DO UNTIL
+- First block of statement is executed then logical expression is checked
+- The statement will be executed atleast once
+- These logical statements are executed until the expression is false
+DO UNTIL(INPUT='END')
+BEGIN;
+PUT SKIP LIST('INPUT IS: ' || INPUT);
+END;
+END; 
+
+ - DO LOOP
+- Used to run infinite number of times
+DO LOOP
+INPUT = INPUT+1;
+IF INPUT=50 THEN
+LEAVE;
+PUT SKIP LIST('INPUT IS: '||INPUT);
+END;
+ END DEMO03;
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+DIFFERENT TYPES OF PROCEDURES:
+==============================
+- Procedure will have a block of statement delimited by a procedure statement and a corresponding end statement.
+
+- The Procedure statement identifies the procedure as main, subroutine or function based on the parameters given to the procedure
+
+- Types of procedure:
+ - Main Procedure
+LABEL: PROC OPTION(MAIN);
+
+ - Subroutine Procedure
+LABEL: PROC(PARAMETERS);
+
+ - Function Procedure
+LABEL: PROC(PARAMETERS) RETURNS(ATTRIBUTES);
+
+DEMO04: PROCEDURE OPTION(MAIN);
+/*
+FACT function, its definition is not coded within DEMO04 so its considered as external procedure.
+DCL FACT EXTERNAL: Denotes it is external procedure
+ENTRY(FIXED): Denotes the passing argument is of fixed decimal data type
+RETURNS(FIXED): Denotes returning value data type is fixed decimal
+*/
+DCL FACT EXTERNAL ENTRY(FIXED) RETURNS(FIXED);
+DCL NUM FIXED DECIMAL;
+DCL FACTORIAL FIXED DECIMAL;
+
+/*Invoking Function procedure*/
+FACTORIAL=FACT(NUM);
+DCL A FIXED DECIMAL(3,0) INIT(10),
+   B FIXED DECIMAL(3,0) INIT(20);
+
+/*Invoking Subroutine procedure*/
+CALL SWAP(A,B);
+PUT SKIP LIST('AFTER SWAP');
+PUT SKIP LIST('A: '||A);
+PUT SKIP LIST('B: '||B);
+
+/*
+It's an internal procedure
+OPTION(BYADDR): Denotes actual parameters A & B, shares the same address as formal parameter A1 & B1
+*/
+SWAP: PROC(A1,B1) OPTION(BYADDR);
+DCL (A1,B1,TEMP) FIXED DECIMAL(3,0);
+TEMP=A1;
+A1=B1;
+B1=TEMP;
+END SWAP;
+
+END DEMO04;
+
+-------------------------------------
+
+/*Stored as a PDS member*/
+FACT: PROC(NUM) RETURNS(FIXED);
+DCL (NUM,I,RES) FIXED;
+RES=1;
+DO I=1 TO NUM BY 1;
+RES=RES*I; 
+END; 
+RETURN(RES);
+END FACT;
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+AGGREGATE DATATYPES:
+====================
+- It is a group of data items that can be referred individually or collectively
+- 2 types of aggregate data types:
+ - Array
+- Array is a data structure that is used to store collection of data items of same data type under one variable name, and in continuous memory allocation.
+
+DEMO06: PROCEDURE OPTION(MAIN);
+/*
+DCL AR1(-5:+5): Denotes lower boundary as -5 and upper boundary as +5
+INIT((11)1): Initialize all 11 elements of array to value 1
+*/
+DCL AR1(-5:+5) FIXED DECIMAL(2,0) INIT((11)1);
+
+/*1-D ARRAY*/
+DCL AR2(7) CHAR(3) INIT('SUN','MON',...'SAT');
+
+/*2-D ARRAY*/
+DCL A(2,2) FIXED(2,0) DECIMAL INIT(1,2,3,4);
+DCL B(2,2) FIXED(2,0) DECIMAL,
+   C(2,2) FIXED(2,0) DECIMAL,
+   D(2,2) FIXED(2,0) DECIMAL;
+
+B=A*5;
+C=A+B;
+D=A*B(1,2);
+
+END DEMO06;
+
+ - Structure
+ - It is a collection of related data items with same or different attributes.
+DEMO06: PROCEDURE OPTIONS(MAIN);
+DCL 1 STUDENT(4),
+ 2 NO FIXED DECIMAL(3),
+ 2 MARKS(3) FIXED DECIMAL(3);
+DCL I FIXED DECIMAL(3);
+
+/*INITIALIZE STRUCTURE*/
+DO J=1 TO 4;
+GET LIST(NO(J));
+DO I=1 TO 3; 
+GET LIST(MARKS(J,I));
+END;
+END;
+
+DO X=1 TO 4;
+PUT SKIP LIST('J: '||J);
+DO I=1 TO 3; 
+PUT SKIP LIST('MARKS: ',MARKS(J,I));
+END;
+END;
+
+END DEMO06;
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+BUILT-IN FUNCTIONS:
+===================
+- Built-in functions are subroutines provided as a part of the PL1 runtime subroutine library
+- It can be categorized as below:
+ - Arithmetic functions
+ - Mathematical functions
+ - Array handling functions
+ - String handling functions
+ - Condition-handling functions
+ - Storage control functions
+ - Miscellaneous functions
+
+DEMO07: PROCEDURE OPTIONS(MAIN);
+DCL AR1(-5:+5) FIXED DECIMAL(2,0) INIT((11)1);
+DCL AR2(2) FIXED DECIMAL(4,2) INIT(12.35,-14.91);
+DCL DEP_NAME CHAR(10)   INIT('INSTITUTE');
+
+/*DECALRING BUILT-IN FUNCTIONS*/
+DCL(DIM,LBOUND,HBOUND,SUM,PROD) BUILTIN;
+DCL(ROUND,ABS,CEIL,FLOOR,TRUNC) BUILTIN;
+DCL(SUBSTR,LENGTH,INDEX) BUILTIN;
+DCL(DATE,DATETIME,TIME) BUILTIN; /*Miscellaneous functions
+
+/*ARRAY HANDLING FUNCTIONS*/
+/*
+DIM(): total number of array so output is 11
+LBOUND(): output is -5
+HBOUND(): output is +5
+SUM(): sum of all elements
+PROD(): product of all elements
+*/
+PUT SKIP LIST(DIM(AR1));
+PUT SKIP LIST(LBOUND(AR1));
+PUT SKIP LIST(HBOUND(AR1));
+PUT SKIP LIST(SUM(AR1));
+PUT SKIP LIST(PROD(AR1));
+
+/*ARITHMETIC FUNCITONS*/
+PUT SKIP LIST(ROUND(AR2,1)); /*12.4,-14.9 Round the value to 1 decimal place 
+PUT SKIP LIST(ABS(AR2)); /*12.35,14.91
+PUT SKIP LIST(CEIL(AR2)); /*13,-14
+PUT SKIP LIST(FLOOR(AR2)); /*12,-15
+PUT SKIP LIST(TRUNC(AR2)); /*12,-14
+/*STRING FUNCTIONS*/
+PUT SKIP LIST(SUBSTR(DEP_NAME,4,3)); /*4th 5th 6th Character will be fetched
+PUT SKIP LIST(LENGTH(DEP_NAME)); /*total number of char in str
+PUT SKIP LIST(INDEX(DEP_NAME,'T')); /*4
+END DEMO07;
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+FILE HANDLING:
+==============
+- File is used to store large data, permanent storage
+- File is a collection of records and records are collection of fields
+- Syntax 
+DCL filename FILE attributes
+- filename: It's a logical file name to be used in program and same filename will be used as DD name in JCL
+- Types of Attributes:
+ - Alternative Attributes
+- STREAM/RECORD
+ - STREAM attribute process continuous stream of data items in character format
+   - STREAM file operation can be done using OPEN, CLOSE, GET, PUT
+ - RECORD attribute process the collection of records.
+ - RECORD file operation can be done using OPEN,CLOSE,READ,WRITE,REWRITE,DELETE
+ - If both STREAM and RECORD are omitted then STREAM is default attribute
+
+- INPUT/OUTPUT/UPDATE
+ - INPUT is used to transmit the data from the dataset to program variable
+ - INPUT is used for operation READ
+ - OUTPUT is used to transmit the data from program variables to dataset
+ - OUTPUT is used for operation WRITE
+ - UPDATE is used for transmitting the data in either directions
+ - UPDATE is used for operation REWRITE,DELETE
+ - If opening option is not coded the INPUT is the default attribute
+
+- SEQUENTIAL/DIRECT
+ - SEQUENTIAL is used to access the records in consecutive order
+ - DIRECT is used to access the records directly based on the key value
+
+
+ - Additive Attributes
+- KEYED
+ - It applies only to the records files which is associated with INDEXED and RELATIVE datasets
+- ENV(VSAM)
+ - It denotes VSAM datasets
+
+-------------------------------------------------------------------------------------------
+
+- Sequential Update in PS Dataset:
+DEMO09:PROC OPTIONS(MAIN);
+
+ /*********************************************************************/
+ /*  DECLARING THE ATTRIBUTES OF THE DATASET                          */
+ /*********************************************************************/
+    DCL INFILE FILE RECORD UPDATE SEQUENTIAL;
+
+ /*********************************************************************/
+ /* VARIABLE TO HOLD A RECORD                                         */
+ /*********************************************************************/
+    DCL 1 CUST_RECORD,
+        2 CT_CUSTOMERID       PIC '(04)9',
+        2 CT_CUSTOMERNAME     PIC '(20)A',
+        2 CT_CUSTOMERMAIL     PIC '(30)X',
+        2 CT_CUSTOMERMOB      PIC '(10)9';
+ /*********************************************************************/
+ /* VARIABLES TO HANDLE ERRORS                                        */
+ /*********************************************************************/
+    DCL EOF BIN(1) INIT('0'B);
+    DCL CUSTID   PIC   '(4)9';
+    DCL CUSTMAIL PIC   '(30)X';
+
+ /*********************************************************************/
+ /* HANDLING THE ERROR CONDITION IF FILE OPEN FAILS                   */
+ /*********************************************************************/
+    ON ENDFILE(INFILE)
+    BEGIN;
+EOF = '1'B;
+    END;
+
+
+ /*********************************************************************/
+ /* ACCEPT THE CUSTOMER ID  FROM THE USER                             */
+ /*********************************************************************/
+    GET LIST(CUSTID);
+    GET SKIP LIST(CUSTMAIL);
+
+    OPEN FILE(INFILE) UPDATE;
+
+    READ FILE(INFILE) INTO(CUST_RECORD);
+
+    DO UNTIL(EOF ='1'B)
+      IF CT_CUSTOMERID = CUSTID THEN
+        DO;
+        CT_CUSTOMERMAIL=CUSTMAIL;
+        REWRITE FILE(INFILE) FROM(CUST_RECORD);
+        END;
+        READ FILE(INFILE) INTO(CUST_RECORD);
+    END;
+
+    CLOSE FILE(INFILE);
+
+ END DEMO09;
+
+-------------------------------------------------------------------------------------------
+
+- Random Read in KSDS Dataset:
+
+ DEMO08:PROC OPTIONS(MAIN);
+
+ /*********************************************************************/
+ /*  DECLARING THE ATTRIBUTES OF THE DATASET                          */
+ /*********************************************************************/
+    DCL INFILE FILE RECORD INPUT DIRECT KEYED ENV(VSAM);
+
+ /*********************************************************************/
+ /* VARIABLE TO HOLD A RECORD                                         */
+ /*********************************************************************/
+    DCL 1 CUST_RECORD,
+        2 CT_CUSTOMERID       PIC '(04)9',
+        2 CT_CUSTOMERNAME     PIC '(20)A',
+        2 CT_CUSTOMERMAIL     PIC '(30)X',
+        2 CT_CUSTOMERMOB      PIC '(10)9';
+ /*********************************************************************/
+ /* VARIABLES TO HANDLE ERRORS                                        */
+ /*********************************************************************/
+    DCL KEY_ERR CHAR(1);
+    DCL FIL_ERR CHAR(1);
+
+ /*********************************************************************/
+ /* VARIABLES TO GET INPUT KEY                                        */
+ /*********************************************************************/
+    DCL KEYELEM PIC      '(4)9';
+
+ /*********************************************************************/
+ /* DECLARING ONCODE BUILTIN FOR HADNLING EXCEPTIONS                  */
+ /*********************************************************************/
+    DCL ONCODE BUILTIN;
+
+ /*********************************************************************/
+ /* HANDLING THE ERROR CONDITION IF FILE OPEN FAILS                   */
+ /*********************************************************************/
+    ON UNDEFINEDFILE(INFILE)
+    BEGIN;
+      IF ONCODE=93 THEN
+          BEGIN;
+          PUT SKIP LIST('DATASET CANNOT BE OPENED');
+          FIL_ERR='Y';
+          END;
+    END;
+
+ /*********************************************************************/
+ /* HANDLING THE ERROR CONDITION IF THE KEY IS NOT FOUND              */
+ /*********************************************************************/
+    ON KEY(INFILE) BEGIN;
+       IF ONCODE=51 THEN
+          BEGIN;
+          PUT SKIP LIST('KEY NOT FOUND ERROR');
+          KEY_ERR='Y';
+          END;
+    END;
+
+ /*********************************************************************/
+ /* ACCEPT THE CUSTOMER ID  FROM THE USER                             */
+ /*********************************************************************/
+    GET(KEYELEM);
+
+    OPEN FILE(INFILE);
+
+   
+    IF FIL_ERR ^= 'Y' THEN
+    DO;
+    READ FILE(INFILE) INTO(CUST_RECORD) KEY(KEYELEM);
+   
+    IF KEY_ERR ^= 'Y' THEN
+    DO;
+        PUT SKIP LIST(CUST_RECORD);
+        CLOSE FILE(INFILE);
+    END;
+    END;
+
+
+ END DEMO08;
+
+-------------------------------------------------------------------------------------------
+
+- Random delete in KSDS Dataset
+
+ DEMO10:PROC OPTIONS(MAIN);
+
+ /*********************************************************************/
+ /*  DECLARING THE ATTRIBUTES OF THE DATASET                          */
+ /*********************************************************************/
+    DCL INFILE FILE RECORD UPDATE DIRECT KEYED ENV(VSAM);
+
+ /*********************************************************************/
+ /* VARIABLE TO HOLD A RECORD                                         */
+ /*********************************************************************/
+    %INCLUDE CUST;
+
+ /*********************************************************************/
+ /* VARIABLES TO HANDLE ERRORS                                        */
+ /*********************************************************************/
+    DCL KEY_ERR CHAR(1);
+    DCL FIL_ERR CHAR(1);
+
+ /*********************************************************************/
+ /* VARIABLES TO GET INPUT KEY                                        */
+ /*********************************************************************/
+    DCL KEYELEM PIC      '(4)9';
+
+ /*********************************************************************/
+ /* DECLARING ONCODE BUILTIN FOR HANDLING EXCEPTIONS                  */
+ /*********************************************************************/
+    DCL ONCODE BUILTIN;
+
+ /*********************************************************************/
+ /* HANDLING THE ERROR CONDITION IF FILE OPEN FAILS                   */
+ /*********************************************************************/
+    ON UNDEFINEDFILE(INFILE)
+    BEGIN;
+      IF ONCODE=93 THEN
+          BEGIN;
+          PUT SKIP LIST('DATASET CANNOT BE OPENED');
+          FIL_ERR='Y';
+          END;
+    END;
+
+ /*********************************************************************/
+ /* HANDLING THE ERROR CONDITION IF THE KEY IS NOT FOUND              */
+ /*********************************************************************/
+    ON KEY(INFILE) BEGIN;
+       IF ONCODE=51 THEN
+          BEGIN;
+          PUT SKIP LIST('KEY NOT FOUND ERROR');
+          KEY_ERR='Y';
+          END;
+    END;
+
+ /*********************************************************************/
+ /* ACCEPT THE CUSTOMER ID  FROM THE USER                             */
+ /*********************************************************************/
+    GET(KEYELEM);
+
+    OPEN FILE(INFILE);
+
+    IF FIL_ERR != 'Y' THEN
+    DO;
+    DELETE FILE(INFILE) KEY(KEYELEM);
+    IF KEY_ERR != 'Y' THEN
+DO;
+        PUT SKIP LIST('RECORD DELETED SUCCESSFULLY');
+        CLOSE FILE(INFILE);
+END;
+    END;
+
+ END DEMO10;
+
+-------------------------------------------------------------------------------------------
+
+- Multiple file operations in PL1
+
+ DEMO11:
+     PROCEDURE OPTIONS(MAIN);
+
+     DCL INFILE FILE RECORD INPUT;
+     DCL OUTFILE FILE RECORD OUTPUT;
+     %INCLUDE CUST;
+
+     DCL CUST_RECORD1 CHAR(80);
+     DCL EOF BIT(1) INIT('0'B);
+
+     ON ENDFILE(INFILE) EOF='1'B;
+
+     OPEN FILE(INFILE) INPUT;
+     OPEN FILE(OUTFILE) OUTPUT;
+
+     READ FILE(INFILE) INTO(CUST_RECORD1);
+
+     DO UNTIL(EOF='1'B);
+       WRITE FILE(OUTFILE) FROM(CUST_RECORD1);
+       READ FILE(INFILE) INTO(CUST_RECORD1);
+     END;
+
+     CLOSE FILE(INFILE);
+     CLOSE FILE(OUTFILE);
+
+ END DEMO11;
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+STORAGE CLASSES:
+================
+- Storage class specifies for a variable determines the scope of the variable, i.e. disability and the time at which memory is allocated or de-allocated.
+- Memory is allocated before the execution of the program for Automatic and Static storage class
+- Memory is allocated after the execution of the program for Controlled and Based storage class
+- PL1 supports 4 storages classes:
+  - Automatic storage class
+- Memory is allocated for a variable upon each entry to the block that contains variable declaration
+- Memory is de-allocated when the execution of that block terminates
+- Default storage class for variable declared within procedures
+- Variables can also be declared using AUTOMATIC/AUTO attribute
+- DCL A1 CHAR(10) AUTO;
+
+  - Static storage class
+- Memory is allocated before the start of execution of the program i.e. at the time of loading and freed at the end of execution 
+- Default storage class for
+ - Variables declared within a package but outside any level-1 procedure
+ - Variables implicitly or explicitly declared with EXTERNAL attribute
+- Variables are declared as static variables using STATIC attribute
+- DCL A1 FIXED DECIMAL(15,2) STATIC;
+
+  - Controlled storage class
+- Controlled storage variables are allocated memory explicitly within the program using ALLOCATE statement and released by FREE statement
+- Controlled storage variable are declared using CONTROLLED attribute
+- DCL A1 CHAR(100) VARYING CTL;
+
+  - Based storage class (Pointer)
+- Memory is dynamically allocated and de-allocated for a based storage variable
+- Based storage variables are declared using BASED attribute
+- Address of a based storage variable is stored in a pointer
+- Pointer are declared using POINTER attribute
+- DCL PTR POINTER;
+ DCL AMOUNT FLOAT BIN(10) BASED(PTR);
+
+-------------------------------------------------------------------------------------------
+
+- Automatic and Static Storage class program:
+
+ DEMO12: PACKAGE;
+
+ /*********************************************************************/
+ /*DECLARATION OF VAR COMMON FOR ALL PROC'S INSIDE THE PACKAGE DEMO12 */
+ /*BY DEFAULT, IT WILL BE OF STATIC STORAGE CLASS  TYPE               */
+ /*********************************************************************/
+ DCL SVAR1 FIXED DEC(3) INIT(20);
+
+ MAIN: PROCEDURE OPTIONS(MAIN);
+
+ /*********************************************************************/
+ /*DECLARATION OF VAR COMMON FOR ALL PROC'S INSIDE THE PROC MAIN      */
+ /*BY DEFAULT, IT WILL BE OF AUTO   STORAGE CLASS  TYPE               */
+ /*********************************************************************/
+  DCL MVAR1 FIXED DECIMAL(3)              INIT(10),
+      MVAR2 FIXED DECIMAL(3)              INIT(20);
+
+ /*********************************************************************/
+ /*DECLARATION OF EXPICIT STATIC VAR                                  */
+ /*********************************************************************/
+  DCL SVAR2 FIXED DECIMAL(3)    STATIC    INIT(666);
+
+ /*********************************************************************/
+ /*DECLARATION OF EXPICIT EXTERNAL VAR                                */
+ /*********************************************************************/
+  DCL EVAR1 FIXED DECIMAL(5,0)  EXTERNAL  INIT(77777);
+
+ /*********************************************************************/
+ /*CALLING INTERNAL PROCEDURE                                         */
+ /*********************************************************************/
+  CALL INTPROC;
+
+ /*********************************************************************/
+ /*CALLING EXTERNAL PROCEDURE                                         */
+ /*********************************************************************/
+  CALL EXTPROC;
+
+ /*********************************************************************/
+ /*DISPLAYING ALL VARIABLES TO UNDERSTAND THE SCOPE                   */
+ /*********************************************************************/
+  PUT SKIP LIST('INSIDE MAIN PROC AFTER INVOKING INT & EXT PROC')
+  PUT SKIP LIST('MAIN PROC VAR1:'||MVAR1);
+  PUT SKIP LIST('MAIN PROC VAR2:'||MVAR2);
+  PUT SKIP LIST('STATIC    VAR1:'||SVAR1);
+  PUT SKIP LIST('STATIC    VAR2:'||SVAR2);
+  PUT SKIP LIST('EXTERNAL  VAR1:'||EVAR1);
+  PUT SKIP LIST('SUB  PROC VAR1:'||SBVAR1);
+  PUT SKIP LIST('SUB  PROC VAR2:'||SBVAR2);
+  PUT SKIP LIST('IMPLICIT  VAR1:'||IMPVAR);
+
+
+ /*********************************************************************/
+ /*INTERNAL PROC DEFINITION                                           */
+ /*********************************************************************/
+ INTPROC:  PROCEDURE;
+
+  DCL SBVAR1  FIXED DECIMAL(3) INIT(100);
+  DCL SBVAR2  FIXED DECIMAL(3) INIT(100);
+
+  IMPVAR=SBVAR1;
+  SBVAR1=SBVAR2;
+  SBVAR2=IMPVAR;
+
+ /*********************************************************************/
+ /*DISPLAYING ALL VARIABLES TO UNDERSTAND THE SCOPE                   */
+ /*********************************************************************/
+  PUT SKIP LIST('INSIDE INT  PROC')
+  PUT SKIP LIST('MAIN PROC VAR1:'||MVAR1);
+  PUT SKIP LIST('MAIN PROC VAR2:'||MVAR2);
+  PUT SKIP LIST('STATIC    VAR1:'||SVAR1);
+  PUT SKIP LIST('STATIC    VAR2:'||SVAR2);
+  PUT SKIP LIST('EXTERNAL  VAR1:'||EVAR1);
+  PUT SKIP LIST('SUB  PROC VAR1:'||SBVAR1);
+  PUT SKIP LIST('SUB  PROC VAR2:'||SBVAR2);
+  PUT SKIP LIST('IMPLICIT  VAR1:'||IMPVAR);
+
+ END INTPROC;
+
+ END MAIN;
+
+ /*********************************************************************/
+ /*EXTERNAL PROC DEFINITION                                           */
+ /*********************************************************************/
+ EXTPROC:  PROCEDURE;
+
+  DCL EVAR1 FIXED DECIMAL(5,0)  EXTERNAL  INIT(77777);
+
+ /*********************************************************************/
+ /*DISPLAYING ALL VARIABLES TO UNDERSTAND THE SCOPE                   */
+ /*********************************************************************/
+  PUT SKIP LIST('INSIDE EXT  PROC')
+  PUT SKIP LIST('MAIN PROC VAR1:'||MVAR1);
+  PUT SKIP LIST('MAIN PROC VAR2:'||MVAR2);
+  PUT SKIP LIST('STATIC    VAR1:'||SVAR1);
+  PUT SKIP LIST('STATIC    VAR2:'||SVAR2);
+  PUT SKIP LIST('EXTERNAL  VAR1:'||EVAR1);
+  PUT SKIP LIST('SUB  PROC VAR1:'||SBVAR1);
+  PUT SKIP LIST('SUB  PROC VAR2:'||SBVAR2);
+  PUT SKIP LIST('IMPLICIT  VAR1:'||IMPVAR);
+
+ END EXTPROC;
+
+ END DEMO12;
+
+-------------------------------------------------------------------------------------------
+
+- Controlled Storage Class program
+
+ DEMO13: PROC OPTIONS(MAIN);
+
+    DCL ERROR_MSG CHAR(100) CONTROLLED;
+    DCL (NUM1,NUM2)     FIXED;
+
+    GET LIST(NUM1,NUM2);
+
+    IF((NUM1-NUM2)<0) THEN
+    BEGIN;
+
+        ALLOCATE ERROR_MSG;
+
+        ERROR_MSG='INVALID INPUT';
+        PUT(ERROR_MSG);
+
+        FREE ERROR_MSG;
+
+    END;
+
+ END DEMO13;
+
+-------------------------------------------------------------------------------------------
+
+- Based Storage Class program
+
+ DEMO14: PROCEDURE OPTIONS(MAIN);
+
+ DCL  PTR_VAR       POINTER;
+ DCL  BASE_AMOUNT   CHAR(14) BASED(BASE_PTR),
+      AMOUNT        CHAR(14);
+
+ AMOUNT  ='MITHRAN DINESH'
+ BASE_PTR=ADDR(AMOUNT);
+ PTR_VAR =ADDR(BASE_AMOUNT);
+
+ PUT SKIP LIST('AMOUNT     :',AMOUNT);
+ PUT SKIP LIST('BASE_AMOUNT:',BASE_AMOUNT);
+
+ END DEMO14;
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+USER DEFINED DATATYPES:
+=======================
+- PL1 allows us to create our own data types as references to built in data types
+- DEFINE ALIAS & DEFINE ORDINAL are used to create user defined datatypes
+- DEFINE ALIAS
+  - It is used to create a synonym or alias for a set of attributes
+- DEFINE ORDINAL
+  - It is named set of ordered values
+  - It is used to define ordinals
+  - It is equal to ENUM in C++
+
+ DEMO15: PROC OPTIONS(MAIN);
+
+ /*********************************************************************/
+ /*DECLARATION OF VARIABLES WITH ALIAS ATTRIBUTE                     */
+ /*********************************************************************/
+    DEFINE ALIAS EMPNAME CHAR(32)   VARYING;
+    DEFINE ALIAS EMPID   PIC '5(9)';
+
+ /*********************************************************************/
+ /*DECLARATION OF VARIABLES WITH TYPE ALIAS NAME                     */
+ /*********************************************************************/
+    DCL AL_NAME TYPE EMPNAME;/* AL_NAME HAS THE ATTRIBUTES CHAR    */
+    DCL AL_ID   TYPE EMPID;  /* AL_ID   HAS THE ATTRIBUTES PIC 9(5)*/
+
+    AL_NAME = 'JACK JONES';
+    AL_ID   = 12345;
+
+    PUT SKIP LIST('ALIAS VARIABLES');
+    PUT SKIP LIST('---------------');
+    PUT SKIP LIST(AL_NAME);
+    PUT SKIP LIST(AL_ID);
+
+ END DEMO15;
+
+-------------------------------------------------------------------------------------------
+
+ DEMO16: PROC OPTIONS(MAIN);
+
+   DEFINE ORDINAL COLOR(RED,ORANGE,YELLOW,GREEN,BLUE,INDIGO);
+   DCL CLR ORDINAL(COLOR);
+   DO CLR=RED UPTHRU INDIGO;
+      PUT SKIP LIST (ORDINALNAME(CLR));
+      PUT SKIP LIST (BINARYVALUE(CLR));
+   END;
+
+   DCL TEST_COLOR TYPE COLOR;
+   TEST_COLOR=BLUE;
+   SELECT (TEST_COLOR)
+     WHEN(BLUE) PUT LIST('SELECTED BLUE COLOR');
+     WHEN(GREEN) PUT LIST('SELECTED GREEN COLOR');
+     WHEN(ORANGE) PUT LIST('SELECTED ORANGE COLOR');
+     WHEN(YELLOW) PUT LIST('SELECTED YELLOW COLOR');
+   END;
+
+   DCL NEXT_COLOR ORDINAL COLOR;
+   DO NEXT_COLOR=FIRST(:COLOR:)
+     REPEAT ORDINALSUCC(NEXT_COLOR)
+     UNTIL (NEXT_COLOR=LAST(:COLOR:));
+     PUT SKIP LIST(ORDINALNAME(NEXT_COLOR));
+   END;
+
+   END ORDINAL;
+
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+EXCEPTION HANDLING:
+===================
+- Condition is an occurrence within a PL1 program that caused a program interrupt
+- ON statement defines the action to take when the specified condition is signaled
+- I/O conditions like  {ENDFILE, KEY, RECORD, UNDEFINEDFILE} are always enabled and may not be disabled
+- Condition like {CONVERSIOM, FIXEDOVERFLOW, OVERFLOW, UNDERFLOW, ZERODIVIDE} are enabled always unless explicitly disabled.
+- Condition SIZE is disabled unless it is explicitly enabled
+- Changing the status of conditions through a CONDITION PREFIX
+- EX: (NOFIXEDOVERFLOW): SUM=A+B+C;
+- The word NO.. is used to tell that the condition is disabled
+
+- Types of Conditions:
+  - ENDFILE
+- It is used during get read operations on file, this condition is enabled by default
+
+  - UNDEFINEDFILE
+- It is raised on successful attempt to open a file and this condition is also enabled by default
+
+  - RECORD
+- It is raised on an unsuccessful attempt to read a file or write into a file because of record size mismatch, it is enabled by default
+
+  - OVERFLOW
+- It is raised for floating point variables, it occurs when magnitude of floating point number exceeds the max value and this condition is enabled by default
+- Max value for decimal and floating point numbers are 10^75 and 2^252
+
+  - ZERODIVIDE
+- It occurs when a number is made to divide a decimal value by 0, it is enable by default
+
+  - STRINGSIZE
+- It occurs during assignment operation when the destination string is shorter than the source string, it is disabled by default
+
+  - SUBSCRIPTRANGE
+- It occurs whenever an element outside the boundaries of an array is referenced, it is disabled by default
+
+- Built-in functions:
+  - Used in an on-unit for CONVERSION condition or in an ERROR on-unit
+  - ONCODE
+- Returns the type of interrupt that caused the on-unit to become active
+- Returns 0 if used in some statement other than ON statement
+
+  - ONLOC
+- Return the entry point of the procedure in which the interrupt was raised
+
+  - ONCHAR
+- Returns the character that caused the CONVERSION condition to be raised
+- When used out of context it returns blank
+
+  -ONSOURCE
+- Returns the contents of the source field that caused CONVERSION condition to be raised
+- When used out of context it returns null string
+
+ (STRZ):
+  STRING:
+  PROC OPTIONS(MAIN);
+  DCL SRC CHAR(20);
+  DCL DEST CHAR(15);
+  SRC='INFOSYS TECHNOLOGIES';
+  ON STRINGSIZE
+     PUT('INVALID STRNG ASSIGNMENT');
+  PUT SKIP LIST(SRC);
+  PUT SKIP LIST(DEST);
+  DEST=SRC;
+  PUT SKIP LIST(SRC);
+  PUT SKIP LIST(DEST);
+  END STRING;

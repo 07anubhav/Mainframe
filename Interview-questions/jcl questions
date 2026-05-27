@@ -1,0 +1,312 @@
+JCL: (https://www.ibmmainframer.com/ 	| 	https://www.mainframestechhelp.com/utilities/sort/index.htm)
+====
+https://mindmajix.com/jcl-interview-questions
+
+TSO is a interface that is used to interact to the system.
+TSO allows multiple users to logon and use mainframe simultaneously at the same time.
+
+- PROCLIB
+	PROCLIB is used to tell the location of the JCL Procedures
+	The PROCLIB statement is used in conjunction with JOBLIB or STEPLIB to include procedure libraries.
+	//PROCLIB DD DSN=MY.PROCLIB,DISP=SHR
+
+- JCLLIB
+	JCLLIB is used to tell the location of the JCL cataloged Procedures
+	//PROC 		JCLLIB ORDER=(NUHID.XXX,NUHID.YYY)
+	//STEP01	EXEC PROC=PROCNAME
+
+- Diff between PROCLIB and JCLLIB
+	PROCLIB shows an system defined library for procs
+	JCLLIB shows an user defined procedure library for procs, it also gives the order in which private libraries are to be searched...
+
+- JOBLIB and STEPLIB
+	It's JOBLIB and STEPLIB, it is used to tell the location of the load modules
+	STEPLIB bypass the JOBLIB if both present in the JCL
+
+	//JOBLIB 	DD DSN=NUHID.YYY,DISP=SHR
+	//			DD DSN=NUHID.XXX,DISP=SHR
+
+	//STEP01 	EXEC PGM=XYZ
+	//STEPLIB	DD DSN=NUHID.XXX,DISP=SHR
+	//			DD DSN=NUHID.YYY,DISP=SHR
+
+- Condition parameters
+
+- INCLUDE statement
+	The INCLUDE statement is used to include a predefined set of JCL statements from an external member into a job stream. 
+	//	INCLUDE MEMBER=member_name
+
+	this member_name will be picked from JOBLIB or STEPLIB
+
+- Parameters related
+	For JOB and EXEC statements we have
+	Positional parameters
+	Keyword parameters
+
+- Ha ya files kese data update ho rha
+	Files can be updated using 3 paramters
+	NEW, OLD, MOD
+
+- SYSDA kyu use hota hai
+	When a file is getting created by a program, in UNIT paramter 
+	DASD (Direct Access Storage Device) is the general term that describes the physical type of storage device, it can be tape storage, HDD or SSD.
+	SYSDA (System Direct Access) used to allocate datasets on any available DASD device without needing to specify a particular one.
+
+- Sort puch lenge
+
+- How JCL compilation process works:
+		1. When JCL code is submitted, before going into JES (Job Entry Subsystem) it is converted in interpreted text that can be understood by JES, and stored under dataset called SPOOL.
+		2. Then JES checks the job priority based on the CLASS and PRTY parameters.
+		3. Then JCL synatx errs are checked and if no errors are there then JOB is scheduled into JOB queue.
+		4. Once the job is loaded in JOB queue, it is sent for job execution based on input file and the log is created into the spool.
+
+- Can we set our own return code to jcl using cobol program - YES
+		RETURN-CODE keyword in COBOL
+
+- Have you done any automations in your project:
+	1. Archival job automation
+	2. GDPR batch automation
+	3. Sending documents in excel format to business
+	4. Checking the document related AD's if not data is present in the input file dummy all the other jobs in that AD, this helped as batch execution time got reduced.
+
+
+Utilities in JCL:
+-----------------
+These utilities allow to manipulate data sets, which are provided as input to the programs.
+IEFBR14 - 
+	Used to create PS to PDS file
+	//STEP1     EXEC PGM=IEFBR14
+	//NEWDS     DD  DSN=MY.NEW.DATASET,DISP=(NEW,CATLG,DELETE),
+	//          UNIT=SYSDA,SPACE=(TRK,(5,5)),DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)
+	/*
+
+IEBCOPY –
+	It is used to copy one or more members from existing dataset to a new or existing PDS dataset, used for compressing PDS, loading PDS to TAPE and unloading 	from TAPE to DISK.
+
+	//STEP1    EXEC PGM=IEBCOPY
+	//SYSPRINT DD  SYSOUT=*
+	//SYSUT1   DD  DSN=SOURCE.PDS,DISP=SHR
+	//SYSUT2   DD  DSN=TARGET.PDS,DISP=OLD
+	//SYSIN    DD  *
+	  COPY OUTDD=SYSUT2,INDD=SYSUT1
+	  SELECT MEMBER=(MEMBER1,MEMBER2,MEMBER3)
+	/*
+
+IEBGENER –
+	It is used to copy or print sequential data sets. Also used to copy any TAPE file to DISK or DISK to TAPE.
+
+	//COPYJOB  JOB  ('ACCOUNTING INFO'),MSGCLASS=A,MSGLEVEL=(1,1)
+	//STEP1    EXEC PGM=IEBGENER
+	//SYSPRINT DD  SYSOUT=*
+	//SYSUT1   DD  DSN=SOURCE.DATASET,DISP=SHR
+	//SYSUT2   DD  DSN=TARGET.DATASET,DISP=(NEW,CATLG,DELETE),
+	//         	UNIT=SYSDA,SPACE=(TRK,(5,5)),DCB=(LRECL=80,RECFM=FB,BLKSIZE=800)
+	//SYSIN    DD  DUMMY
+
+IEHLIST –
+	It is system utility used to list entries in the directory of one or more PDS, entries in the catalog or list the contents of a Volume Table of Contents (VTOC).
+
+IEHMOVE –
+	It is used to move one dataset from one volume to another volume.
+
+IEBCOMPR –
+	It is used to compare the contents of two PS or PDS datasets.
+
+	//STEP1     EXEC PGM=IEBCOMPR
+	//SYSPRINT  DD  SYSOUT=*
+	//SYSUT1    DD  DSN=PDS1.DATASET(MEMBER1),DISP=SHR
+	//SYSUT2    DD  DSN=PDS2.DATASET(MEMBER1),DISP=SHR
+	/*
+
+IEBEDIT –
+	It is used to create a JCL containing a selection of job steps. These job steps can be entered into the job stream for processing.
+
+IEHPROGM –
+	It is used for deleting or renaming data sets or members and for cataloging or uncataloging non-VSAM data sets.
+
+DFSORT & SYNCSORT –
+	It is powerful IBM utility used to copy, sort or merge datasets. SYSIN DD statement is used to specify the conditions. It is used to achieve many functionalities,
+	COPY all records from SORTIN to SORTOUT.
+	SKIP first 100 records and then copy 20 records.
+	SORT the input file in the order of the specified field position.
+	INCLUDE or OMIT record in input file based on condition.
+	MERGE input files in the order of the specified field position.
+	JOIN two or more input files based on specified JOIN KEY in input file.
+	To remove duplicates
+	SUM the values for same-key records.
+	Add sequence number to the output file.
+	Restructure the input file before feeding to sort.
+	To create multiple files from single input file.
+	Restructure the sorted file before writing.
+
+ICETOOL –
+	It is a wrapper around DFSORT, is another IBM utility used to perform a variety of operations on datasets such as sorting, copying, merging, and generating reports. The file operations are specified in the TOOLIN DD statement.
+	copy unique, selected and duplicate records.
+	To get statistics(maximum, average and total) of a numeric field.
+	Count unique values in a field.
+
+	//STEP1     EXEC PGM=ICETOOL
+	//TOOLMSG   DD  SYSOUT=*
+	//DFSMSG    DD  SYSOUT=*
+	//SORTIN    DD  DSN=INPUT.DATASET,DISP=SHR
+	//SORTOUT   DD  DSN=OUTPUT.DATASET,DISP=(,CATLG,DELETE),
+	//          UNIT=SYSDA,SPACE=(CYL,(5,5)),DCB=(LRECL=80,RECFM=FB,BLKSIZE=0)
+	//TOOLIN    DD  *
+	  SORT FROM(SORTIN) TO(SORTOUT) USING(CTL1)
+	/*
+	//CTL1CNTL  DD  *
+	  SORT FIELDS=(1,10,CH,A)
+	  SUM FIELDS=NONE
+	/*
+
+	- Copy only last record
+	//STEP01  EXEC PGM=ICETOOL
+	//TOOLMSG DD  SYSOUT=*
+	//DFSMSG  DD  SYSOUT=*
+	//IN      DD  DSN=your.input.dataset,DISP=SHR
+	//OUT     DD  DSN=your.output.dataset,DISP=(NEW,CATLG,DELETE)
+	//TOOLIN  DD  *
+	  SELECT FROM(IN) TO(OUT) LAST
+	/*
+
+IDCAMS –
+	Generates and modifies VSAM and Generation Data Groups (GDG) datasets. The Commands that carry out IDCAMS tasks include DEFINE, PRINT, LISTCAT, REPRO, ALTER, VERIFY and DELETE. It Creates versioned files for GDGs on a chronological basis. It List VSAM dataset attributes and Delete unwanted datasets.
+
+- Diff b/w CATLG and UNCATLG
+	Catalog:
+		Cataloging a dataset means registering its information in the system catalog.
+		Once a dataset is cataloged, the system can easily locate it using just its dataset name (DSN).
+		Cataloging is useful because it simplifies dataset management; the system knows the physical location of the dataset without needing manual intervention.
+	Uncatalog:
+		Uncataloging a dataset means removing its reference from the system catalog, but the physical dataset remains on disk.
+		Once a dataset is uncataloged, the system no longer knows its location, and the dataset cannot be accessed by simply referring to its DSN. However, if the physical location (volume/track) is known, it can still be accessed manually.
+
+- What does the TIME parameter signify ? What does TIME=1440 mean ?
+	TIME parameter can be used to overcome S322 abends for programs that genuinely need more CPU time. TIME=1440 means no CPU time limit is to be applied to this step.
+
+- What is COND=EVEN?
+	It means execute this step even if any of the previous steps, terminated abnormally.
+
+- What is COND=ONLY?
+	It means execute this step only if any of the previous steps, terminated abnormally.
+
+- When you want to execute the step anyhow?
+	COND=(0,GT) | COND=(4095,LT) 
+
+- When you dont want to execute the step?
+	COND=(0,LT) | COND=(4095,GT)
+
+- For how long a job can be executed continuously in a mainframe ?
+	248 DAYS
+
+- What is the Maximum number of DD statements in a job ?
+	3273
+
+- What is the maximum number of steps in a job?
+	255
+
+- Joinkeys:
+	Join is used to combine two or more dataset based on some column data.
+
+	Matched Records (Inner Join) –
+	If join statement not specified in sort card, paired records from F1 and F2 are written into output file.
+	//STEP01   EXEC  PGM=SORT
+	//SYSPRINT DD SYSOUT=*
+	//SYSOUT DD SYSOUT=*
+	//SORTJNF1 DD DSN=INPUT DATASET 1,DISP=SHR
+	//SORTJNF2 DD DSN=INPUT DATASET 2,DISP=SHR
+	//SYSIN DD *
+	        SORT FIELDS=COPY
+	        JOINKEYS FILES=F1, FIELDS=(1, 10, A), INCLUDE COND=(1,6,CH,EQ,C'123456')
+	        JOINKEYS FILES=F2, FIELDS=(1, 10, A)
+	        REFORMAT FIELDS=(F1:1, 71, F2:1, 9)
+	/*
+
+	Matched Records and Non Matched Records from File1 –
+	Sort card to retain unpaired records from F1 file along with paired records. This type of join is called a LEFT OUTER JOIN.
+	//SYSIN DD *
+	        SORT FIELDS=COPY
+	        JOINKEYS FILES=F1, FIELDS=(1, 10, A)
+	        JOINKEYS FILES=F2, FIELDS=(1, 10, A)
+	        JOIN UNPAIRED, F1
+	        REFORMAT FIELDS=(F1:1, 71, F2:1, 9)
+	/*
+
+	Non Matched from File1 –
+	Sort card to retain unpaired records from F1 file, cannot use reformat in F2.
+	//SYSIN DD * 
+	        SORT FIELDS=COPY
+	        JOINKEYS FILES=F1, FIELDS=(1, 10, A)
+	        JOINKEYS FILES=F2, FIELDS=(1, 10, A)
+	        JOIN UNPAIRED, F1, ONLY
+	        REFORMAT FIELDS=(F1:1, 71)
+	/*
+
+	Matched Records and Non Matched from File2 –
+	Sort card to retain unpaired records from F2 file along with paired records. This type of join is called RIGHT OUTER JOIN.
+	//SYSIN DD *
+	        SORT FIELDS=COPY
+	        JOINKEYS FILES=F1, FIELDS=(1, 10, A)
+	        JOINKEYS FILES=F2, FIELDS=(1, 10, A)
+	        JOIN UNPAIRED, F2
+	        REFORMAT FIELDS=(F1:1, 71, F2:1, 9)
+	/*
+
+	Non Matched from File2 –
+	Sort card to retain unpaired records from F2 file, cannot use reformat in F1.
+	//SYSIN DD *
+	        SORT FIELDS=COPY
+	        JOINKEYS FILES=F1, FIELDS=(1, 10, A)
+	        JOINKEYS FILES=F2, FIELDS=(1, 10, A)
+	        JOIN UNPAIRED, F2, ONLY
+	        REFORMAT FIELDS=(F2:1, 9)
+	/*
+
+	Matched Records and Non Matched Records from both files –
+	Sort card to retain unpaired records from both F1 and F2 files along with paired records. This type of join is called as FULL OUTER JOIN.
+	//SYSIN DD *
+	        SORT FIELDS=COPY
+	        JOINKEYS FILES=F1, FIELDS=(1, 10, A)
+	        JOINKEYS FILES=F2, FIELDS=(1, 10, A)
+	        JOIN UNPAIRED, F1, F2
+	        REFORMAT FIELDS=(F1:1, 71, F2:1, 9)
+	/*
+
+	Non Matched Records from both files –
+	Sort card to retain only unpaired records from F1 and F2 files.
+	//SYSIN DD *
+	        SORT FIELDS=COPY
+	        JOINKEYS FILES=F1, FIELDS=(1, 10, A)
+	        JOINKEYS FILES=F2, FIELDS=(1, 10, A)
+	        JOIN UNPAIRED, F1, F2, ONLY or JOIN UNPAIRED, ONLY
+	        REFORMAT FIELDS=(F1:1, 71, F2:1, 9)
+	/*
+
+- INREC and OUTREC do the same, but the only difference is the way reformatting is done.
+	INREC: Specifies how records are reformatted before they are sorted, copied, or merged. INREC is useful in case of the large input files. When INREC is used reformatting of records is done BEFORE the sort.
+
+	OUTREC: Specifies how records are reformatted after they are sorted, copied, or merged. The final output will be the same. When it is used reformatting of records is done AFTER the sort.
+
+- What is Alternate Index?
+	KSDS dataset is currently accessed using the primary key. If we want to access the dataset RANDOMLY with another key, then we should use AIX.
+	AIX is a dataset which stores the Key which is not primary key, with the help of new key data is fetched/retrieved from the VSAM file.
+
+- Explain what is the difference between JES3 and JES2?
+	The difference between JES3 and JES2 is that,
+		JES3 assigns datasets for all the steps before the job is scheduled. (Compile time)
+		JES2 assigns datasets required by a step just before the step executes. (Run time)
+
+- How do you include a JCL statement?
+	Identify the name of the member of a partitioned data set (PDS) or partitioned data set extended (PDSE) that contains a set of JCL statements (such as DD and OUTPUT JCL statements) called an INCLUDE group. Imbed the INCLUDE group in the JCL stream at the position of the INCLUDE statement.
+
+- //SYSIN    DD  *
+  SORT FIELDS=COPY
+  INREC IFTHEN=(WHEN=(condition),OVERLAY=(field_position:new_value))
+/*
+
+
+
+
+
+
+
