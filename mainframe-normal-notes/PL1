@@ -378,7 +378,7 @@ DEMO09:PROC OPTIONS(MAIN);
  /*********************************************************************/
     ON ENDFILE(INFILE)
     BEGIN;
-EOF = '1'B;
+	EOF = '1'B;
     END;
 
 
@@ -455,7 +455,8 @@ EOF = '1'B;
  /*********************************************************************/
  /* HANDLING THE ERROR CONDITION IF THE KEY IS NOT FOUND              */
  /*********************************************************************/
-    ON KEY(INFILE) BEGIN;
+    ON KEY(INFILE) 
+    BEGIN;
        IF ONCODE=51 THEN
           BEGIN;
           PUT SKIP LIST('KEY NOT FOUND ERROR');
@@ -470,7 +471,6 @@ EOF = '1'B;
 
     OPEN FILE(INFILE);
 
-   
     IF FIL_ERR ^= 'Y' THEN
     DO;
     READ FILE(INFILE) INTO(CUST_RECORD) KEY(KEYELEM);
@@ -551,10 +551,10 @@ EOF = '1'B;
     DO;
     DELETE FILE(INFILE) KEY(KEYELEM);
     IF KEY_ERR != 'Y' THEN
-DO;
+    DO;
         PUT SKIP LIST('RECORD DELETED SUCCESSFULLY');
         CLOSE FILE(INFILE);
-END;
+    END;
     END;
 
  END DEMO10;
@@ -600,32 +600,32 @@ STORAGE CLASSES:
 - Memory is allocated after the execution of the program for Controlled and Based storage class
 - PL1 supports 4 storages classes:
   - Automatic storage class
-- Memory is allocated for a variable upon each entry to the block that contains variable declaration
-- Memory is de-allocated when the execution of that block terminates
-- Default storage class for variable declared within procedures
-- Variables can also be declared using AUTOMATIC/AUTO attribute
-- DCL A1 CHAR(10) AUTO;
+	- Memory is allocated for a variable upon each entry to the block that contains variable declaration
+	- Memory is de-allocated when the execution of that block terminates
+	- Default storage class for variable declared within procedures
+	- Variables can also be declared using AUTOMATIC/AUTO attribute
+	- DCL A1 CHAR(10) AUTO;
 
   - Static storage class
-- Memory is allocated before the start of execution of the program i.e. at the time of loading and freed at the end of execution 
-- Default storage class for
- - Variables declared within a package but outside any level-1 procedure
- - Variables implicitly or explicitly declared with EXTERNAL attribute
-- Variables are declared as static variables using STATIC attribute
-- DCL A1 FIXED DECIMAL(15,2) STATIC;
+	- Memory is allocated before the start of execution of the program i.e. at the time of loading and freed at the end of execution 
+	- Default storage class for
+ 	- Variables declared within a package but outside any level-1 procedure
+ 	- Variables implicitly or explicitly declared with EXTERNAL attribute
+	- Variables are declared as static variables using STATIC attribute
+	- DCL A1 FIXED DECIMAL(15,2) STATIC;
 
   - Controlled storage class
-- Controlled storage variables are allocated memory explicitly within the program using ALLOCATE statement and released by FREE statement
-- Controlled storage variable are declared using CONTROLLED attribute
-- DCL A1 CHAR(100) VARYING CTL;
+	- Controlled storage variables are allocated memory explicitly within the program using ALLOCATE statement and released by FREE statement
+	- Controlled storage variable are declared using CONTROLLED attribute
+	- DCL A1 CHAR(100) VARYING CTL;
 
   - Based storage class (Pointer)
-- Memory is dynamically allocated and de-allocated for a based storage variable
-- Based storage variables are declared using BASED attribute
-- Address of a based storage variable is stored in a pointer
-- Pointer are declared using POINTER attribute
-- DCL PTR POINTER;
- DCL AMOUNT FLOAT BIN(10) BASED(PTR);
+	- Memory is dynamically allocated and de-allocated for a based storage variable
+	- Based storage variables are declared using BASED attribute
+	- Address of a based storage variable is stored in a pointer
+	- Pointer are declared using POINTER attribute
+	- DCL PTR POINTER;
+ 	  DCL AMOUNT FLOAT BIN(10) BASED(PTR);
 
 -------------------------------------------------------------------------------------------
 
@@ -847,7 +847,6 @@ USER DEFINED DATATYPES:
 
 
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
 
 EXCEPTION HANDLING:
 ===================
