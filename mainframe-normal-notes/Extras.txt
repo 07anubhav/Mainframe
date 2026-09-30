@@ -1,0 +1,1662 @@
+===========================================================================================================================================
+=====================================================================SQL=================================================================== 
+===========================================================================================================================================
+Create Database  -->	Create Database <databasename>
+						Whenever we create a database two files get generated 
+						.MDF file --> Data file (Actual data)
+						.LDF file --> Transaction log (use to recover the databse)
+
+Rename Database  --> 	Alter Database <databasename> Modify Name = <new databasename> 
+						Execute sp_renameDB '<databasename>' ,'<newdatabasename>'
+						
+Drop Database	 --> 	Drop Database <databasename>
+						Remember ==>> while dropping make sure db is not in use, if someother user is using the db them will not be deleted 
+						So it will not be deleted if other user is using the db 
+						In that case need to put the database into single user 
+						==>> Alter Database <databasename> set SINGLE_USER With Rollback Immediate 
+						With rollback immediate option, will roll all incomplete transactions and close the connection to the database
+						
+						
+						Remember System DB cannot be Dropped 
+						
+============================================================================================================================================
+
+Create Table 	 -->	Create Table <tablename>( ID int not null Primary Key)
+						Alter Table <tblname> Add Constraint <fk_constraintname>
+						Forign Key (<forignkeycol>) References <table> (<primarycolname>)
+						
+						------------------------------------------------------
+						ALTER Table dbo.Person Add Constraint fk_person_gender
+						Foreign Key (GenderID) References Gender(ID)
+						-------------------------------------------
+						
+						Forign key in a table points primary key in another table 
+						Add a default constraint for a table 
+						-------------------------------		
+						ALTER TABLE [dbo].[Person] 
+						ADD CONSTRAINT df_person_gender 
+						DEFAULT 3 FOR Gender
+						-------------------------------
+						
+						Adding a new column with default Constraint 
+						-----------------------
+						ALTER TABLE <tablename> 
+						Add Column <columnname> <datatype> <null/not null>
+						Constraint <constraintname> DEFAULT <value>
+						--------------------------------------------------
+						
+Check Constraint -->	used to set some custom rules for the column  (is a boolean expression that returns T/F)
+						set a constraint for age column in a table 
+						-----------------------
+						ALTER TABLE <tablename> 
+						ADD Constraint <constraintname> 
+						CHECK (Age > 0 and AGE < 150)
+						------------------------------
+						
+						
+Unique Key Cons  -->	-----------------------
+						ALTER TABLE <tablename>
+						ADD CONSTRAINT <constraintname>
+						UINQUE(<columnname>)
+						--------------------
+						
+						
+Drop CONSTRAINT	 -->	--------------------------
+						ALTER TABLE [dbo].[Person]
+						DROP CONSTRAINT UQ_person_Email						
+						-------------------------------
+
+==============================================================================================================================================
+
+Cascading Referential Integrity 
+				 --> 	Cascading Referential Integrity allows to define the actions MSSQL server should take once a user attempt 
+						to delete or update a key to which an exsisting foreign key points.
+						
+						Object Explorer--> table --> keys --> foreign key constraint
+						Goto --> INSERT AND UPDATE Specification 
+								two options --> delete rule 
+											--> update rule 
+											
+								for both 4 actions 
+								--> No action   	will give error and will rollback
+								--> set default 	will give the default
+								--> set cascade 	will delete/update both data 
+								--> set null		will set null 
+
+===============================================================================================================================================				
+
+Identity Column	 -->	Auto increment col value 
+						Identity increment --> by how much will the value increment
+						Identity redseed	--> from where it will start 
+						
+						use the deleted column values 
+						by default we cant add explicit values into the identity col 
+						To do so need to turn on INDENTITY_INSERT ON for thar table and also provide the list of col for insert statement 
+						-----------------------------------
+						SET INDENTITY_INSERT <tablename> ON
+						-----------------------------------
+						
+						after use turn OFF
+						once it is turned on then we have to always provide the list of columnname in INSERT statement 
+						so it is better to turn OFF after using the available identity index 
+						
+						Trun ON INDENTITY_INSERT --> Fill gaps --> Turn OFF
+						DBCC CHECKIDENT('<tablename>',RESEED,0)
+						
+						Get the last generated identity column --(video 9)
+						----------------------------
+						IDENT_CURRENT('<tablename>')
+						----------------------------
+						
+==================================================================================================================================================						
+						
+Wild Card Operators
+				 -->	_ (underscore) --> this will represent exactly one element 
+						
+						[]  --> any number of charecters defined here will be checked one by one on same position 
+							WHERE name LIKE '[ABC]%'  this will give all the names that starts with A or B or C
+						
+						
+						[^]	--> WHERE name LIKE '[^ABC]%'  this will give all the names that will not sarts with A or B or C
+
+===================================================================================================================================================
+
+Replace NULLs 	 -->	ISNULL(<columnname>,'custom input') --> if columnname is null then custom input will be reflected 
+						
+						SELECT COALESCE (<columnname>,<columnname>,<columnname>)  --> return first non null value
+						
+						CASE WHEN <expression> 
+						THEN '---' ELSE '--' END 
+						
+===================================================================================================================================================		
+
+Stored Procedure  -->	CREATE PRCEDURE <name>
+						AS
+						BEGIN
+							------------------
+						END 														               =========SELECT Table name and ALT+F1============
+						
+						EXECUTION --> <name>
+									  EXEC <name>
+									  EXECUTE <name>
+									  
+						sp_helptext '<nameofsp>' 
+						sp_help '<nameofsp>'
+						sp_depends '<nameofsp>'
+						
+						
+						WITH Encryption 
+						Adding the above statement in SP defination will ristrict any user to see the content of sp 
+						The stored procedure can be encrypted. When you have complex business logics and want to 
+						hide the logic implementation  then the schema of the stored procedure can be encrypted.
+						
+						Return Values -->
+							Whenever an sp is executed it returns an integer status variable 
+							0 indicates suceess and non-zero indicates failure 
+							------------------------------------
+							CREATE PRCEDURE <name>
+							AS
+							BEGIN
+								return(Select count(*) from table 
+							END 			
+							EXEC @var = <sp_name>
+							------------------------------------
+							return() will work for integer only and only one value 
+							
+						Getting the return value -->
+							DECLARE	@return_value int
+							EXEC	@return_value = [dbo].[GetDepartmentInfo]
+							SELECT	'Return Value' = @return_value
+							GO
+						
+						Parameters: Input, Output, Optional
+
+						Return Value  (integer status variable)
+							Whenever, you execute a stored procedure, it returns an integer status variable. 
+							Usually, zero indicates success, and non-zero indicates failure.
+							
+							Using return value
+							Create Procedure spGetTotalCountOfEmployees2
+								as
+								Begin
+								 return (Select COUNT(ID) from Employees)
+								End
+							
+							Declare @TotalEmployees int
+							Execute @TotalEmployees = spGetTotalCountOfEmployees2
+							Select @TotalEmployees
+														
+						Advantages of usp-->
+							Execution plan retention and reusablity -->
+									Suppose we have an Sp as below 
+										--------------------
+										CREATE PRCEDURE name  
+										@input int
+										AS 
+											SELECT emp from employee where id = @input
+										END
+										----------------------------------------------
+										
+										Consider an adhoc-script 
+												SELECT emp from employee where id = 1
+												SELECT emp from employee where id = 2
+												for above two example executed plan is created for both seprately even not much changes are there 
+												
+												But now consider bwlow two statement
+												EXEC name 1
+												EXEC name 2 
+												
+												this will also do same job but a new excution plan will not be created 
+												why?
+												SP will generats a exection plan and will cache it 
+												
+												
+							Reduce network traffic -->
+										if we are required to use a set of satement in and aaplication say bulit using .net or java 
+										then without the sp we need to send those number of rows for exection insted for just sending the EXEC command 
+										this will reduce traffic 
+										
+							Reusability and Maintainability -->
+									use at multiple places and maintain only at one place 
+							
+							
+							Security --> 
+								Avoid SQL Injection Attack --> 
+								Concider a table having data of all the departments 
+								If table access is given to a member of HR department then they will have access of all the data 
+								Insted we can create a sp with condition WHERE dept = 'HR'
+								And then give access to only the sp 
+							
+							
+							
+====================================================================================================================================================
+
+String Funtions  -->	ASCII -> ASCII of a charecter 
+								ASCII('ABC') --> 65 of first char 
+								
+						CHAR(65) --> A
+						
+						LEFT -> LEFT ('ABCBE',4) ABCD
+						RIGHT -> RIGHT ('ABCDE',4) - BCDE 
+						
+						CHARINDEX -> 	CHARINDEX ( 'chartobeserched','string',position(potional default0)
+										CHARINDEX ('@','abdul1@gmail.com',1)
+										
+						SUBSTRING -> 	SUBSTRING('expression','start','length')
+										-------------------------------------------
+										SELECT CHARINDEX ('@','abdul1@gmail.com',1)
+										SELECT SUBSTRING ( 'abdul1@gmail.com',CHARINDEX('@','abdul1@gmail.com')+1,9)
+										SELECT SUBSTRING ( 'abdul1@gmail.com',CHARINDEX('@','abdul1@gmail.com')+1,
+													LEN('abdul1@gmail.com')-CHARINDEX('@','abdul1@gmail.com'))
+										----------------------------------------------------------------------
+						REPLICATE ->	SELECT REPLICATE ('*',3) --> ***
+										Hide the email
+										---------------------------------------------------
+										
+										SELECT	Email,
+												SUBSTRING(Email,CHARINDEX('@',Email)+1,LEN(Email)-CHARINDEX('@',Email)),
+												SUBSTRING(Email,1,CHARINDEX('@',Email)-1),
+												CASE WHEN LEN(SUBSTRING(Email,1,CHARINDEX('@',Email)-1))>2
+														THEN SUBSTRING(Email,1,2)+REPLICATE('*',LEN(SUBSTRING(Email,1,CHARINDEX('@',Email)-1))-2)+'@'+SUBSTRING(Email,CHARINDEX('@',Email)+1,LEN(Email)-CHARINDEX('@',Email)) 
+														WHEN LEN(SUBSTRING(Email,1,CHARINDEX('@',Email)-1))= 2
+														THEN '**@'+SUBSTRING(Email,CHARINDEX('@',Email)+1,LEN(Email)-CHARINDEX('@',Email))
+														ELSE
+																'*@'+SUBSTRING(Email,CHARINDEX('@',Email)+1,LEN(Email)-CHARINDEX('@',Email))
+														END
+										FROM Person
+										
+										------------------------------------------------------------------------------------------------------
+						
+						SPACE    ->		SPACE(number of spaces)
+						
+						PATINDEX  ->	Returns position of first occurance of pattern 
+										PATINDEX ('@aaa',Email)
+						REPLACE   -> 	Replaces all the occurance of a specified vaule with another string 
+										REPLACE (Email,'---','***')
+						STUFF	  ->	STUFF(expression,starrtposi,numberofchar,valuetobeStuffed)
+										STUFF(Email,2,3,'***')
+										
+====================================================================================================================================================										
+	
+DATETIME FUNTIONS --> 	
+						Space used by datatype 
+						Date -> 3bytes
+						time -> 3 to 5 
+						datetime -> 8 
+						datetimeoffset -> 8 to 10   (also deals with timezone)
+						
+						GETDATE() --> datatime 
+						CURRENT_TIMESTAMP --> similar for GETDATE()
+						SYSDATETIME()  --> similar to GETDATE() but more fractional sec precision 
+						SYSDATETIMEOFFSET()
+						
+						
+						ISDATE --> check if the given value is date/datetime  	
+									0 for no 1 for yes 
+									for datetime2 values, Isdate returns 0 
+						DAY()
+						MONTH() 
+						YEAR() --> returns the year form datetime 
+						
+						DATENAME() --> Return String that represents part of the given data 
+										SELECT DATENAME(DAY, GETDATE()) -> returns day 
+										SELECT DATENAME(WEEKDAY, GETDATE()) -> returns week number 
+										SELECT DATENAME(Month, GETDATE())
+										
+						DATEPART  --> 	DATEPART(Datepart,Date) 
+										datepart can be year month day weekday dayofyear week hour minute second milisecond microsecond 
+										
+						DATEADD   --> 	DATEADD(datepart, number to add, date)
+										number to add can be negative 
+										DATEADD(day, 20, GETDATE()) will add 20 days from today
+										
+						DATEDIFF  --> 	DATEDIFF(DATEPART, startdate, enddate)
+										calculated the difference as per provided in Datepart 
+										
+										the date diff calculations are not exact 
+										
+										SELECT @years = DATEDIFF(YEAR, @tempdate, GETDATE()) - 
+															CASE WHEN 
+																(MONTH(@DOB) > MONTH(GETDATE())) OR (MONTH(@DOB) = MONTH(GETDATE()) 
+																AND DAY(@DOB) > DAY(GETDATE())) 
+															THEN 1 ELSE 0 END
+											
+										SELECT @months = DATEDIFF(MONTH, @tempdate, GETDATE()) - 
+															CASE WHEN 
+																DAY(@DOB) > DAY(GETDATE()) 
+															THEN 1 ELSE 0 END
+						
+						CAST AND CONVERT 
+								 --> 	These funtions are useful to convert data types 
+									CAST -> SELEcT CAST (GETDATE() AS NVARCHAR)
+											SELECT CAST (GETDATE() AS DATE)
+											CAST (expression AS data_type (length)) -> SELEcT CAST (GETDATE() AS NVARCHAR(5))
+										
+									CONVERT -> CONVERT(data_type(lenght),expression,style)
+									
+											styles and formats 
+											101  -  mm/dd/yyyy
+											102  -  yy.mm.dd
+											103  -  dd/mm/yyyy
+											104  -  dd.mm.yyyy]
+											
+=====================================================================================================================================================	
+
+MATHEMATICAL FUNTIONS 
+				 --> 	ABS() -> absolute +ve will give same -ve will become positive 
+				 --> 	CEILING  -> CEILING(15.2) -> 16
+				 --> 	FLOOR	->	FLOOR(15.8) -> 15 
+				 --> 	POWER, SQUARE, SQRT 
+				 --> 	RAND() Random number between 0to1 ->retuens a float value
+							FLOOR(RAND() *100) -> random between 0 to 100
+							RAND(seed) if seed is provided say 1 then it will always give same value 
+				
+				ROUND() -> ROUND (expression, length, function(optional)  )
+						length -> will describe the decimal places upto which it will be rounded 
+						funtion -> (optional) It can perform two operation round or truncate
+							1 is to truncate 
+							0 is defalut then it will round 
+							
+							
+				Creating random number between x to y 
+				@ll = 1 
+				@ul	= 5
+				select 	(@ul - @ll) * RAND()  creates float random number between 0 to 4
+				select 	Round(((@ul - @ll) * RAND() + 1),0)
+				
+				
+=====================================================================================================================================================
+USER DEFINED Funtions
+				all system funtions are Scalar Funtions 
+
+				SACLAR UDF 	 -->	takes 0 or more parameter and returns only one value 
+									------------------------------------------------------------
+									CREATE FUNTION fun_name (@para Datatype, @para2 Datatype....)
+									RETURNS Return_Datatype
+									AS 
+									BEGIN
+										Return Return_Datatype
+									END 
+									---------------------------
+									
+									can return all datatype except text, ntext, image, cursor, and timedstamp
+									
+				INLINE Table Valued Funtion 
+							 -->	Can return a table 
+									----------------------------
+									CREATE FUNTION fun_name(@para Datatype)
+									RETURNS TABLE
+									AS
+									RETURN (SELECT id, name , dapt 
+												from emp 
+												WHERE name = @para)
+												
+									-------------------------------
+									This will not have BEGIN And END
+									
+									Update can be performed using inline 
+									UPDATE fun_name() SET name = 'xzy' where id = 1
+									this will update the value in table in real time 
+									
+									
+				MULTI-STATEMENT Table Valued Funtions 
+							-->		used to return a table, uses temporary table and has BEGIN and END 
+									----------------------------
+									CREATE FUNTION fun_name()
+									RETURNS @table ( id int, name NVARCHAR(100), DOB DATE)
+									AS
+									BEGIN
+										Insert into @table 
+										select id,name,CAST(dateofB AS DATE) from tblname
+										RETURN
+									END
+									------------------------------------------------------
+									Update not possible 
+							
+							
+							Deterministic Funtions
+								it will always give the same value for certain input 
+								eg Square(), Power(), Sqrt(), AVG(), Count() all aggregate are deterministic 
+							 
+							Non-Deterministic
+								May return different vaule even any records in table 
+								GETDATE(), CURRENT_TIMESTAMP
+								
+							prime example --> RAND () will be non-deterministic function 
+												but RAND(1) will always be used a deterministic funtion 
+												RAND can be used as both 
+												
+							Encrypting --> 	use WITH ENCRYPTION same as procedures 
+												------------------------------------------------------------
+												CREATE FUNTION fun_name (@para Datatype, @para2 Datatype....)
+												RETURNS Return_Datatype
+												WITH ENCRYPTION
+												AS 
+												BEGIN
+													Return Return_Datatype
+												END 
+												---------------------------
+												
+												
+							Creating a Funtion using SCHEMABINDING -->
+										SCHEMABINDING can be used to stop any form of alteration that can be done with the table schema which will affect the 
+										funtion funtionality 
+										
+
+=====================================================================================================================================================
+
+Temporary Table 	--> 	Temporary tables are created in TempDB and later deleted 	
+							CREATE TABLE #table_name (id int, name varchar(10))
+							
+							is only available for the connection by which it is created 
+							local temporary table is dropped as the connection is closed 
+							
+							also we can use DROP TABLE #tblname
+							If an temptable is created inside a stored procedure then it will be automatically droped when exection of sp is completed 
+							
+					Global temporary table --> ##
+					visible for all connections 
+					
+					Local vs Global TempTable 
+							# and ##
+							SQL server appends some random numbers in temp table name for local but for Global it will be same 
+							Local visible for only to the session which has created it 
+							Local are automatically dropped 
+									
+=====================================================================================================================================================	
+
+Indexes 		--> 		Indexes are used in table or view for faster retiraval of data 
+							CREATE Index IX_tblEmployee_Salary 
+							ON tblEmployee (SALARY ASC)
+							
+							->	table scan can adversely affect the performance, especially if the table is large
+							
+							
+							To view the Indexes: In the object explorer, expand Indexes folder. Alternatively use sp_helptext system stored procedure. 
+							The following command query returns all the indexes on tblEmployee table.
+							Execute sp_helptext tblEmployee
+							sp_helpindex tblname	
+							
+							--> 	SQL server picks up the row addresses from the index and directly fetch the records from the table, 
+							rather than scanning each row in the table. This is called as Index Seek.
+							
+							Differenet Indexes 
+								1. Clustered
+								2. Nonclustered
+								3. Unique
+								4. Filtered
+								5. XML
+								6. Full Text
+								7. Spatial
+								8. Columnstore
+								9. Index with included columns
+								10. Index on computed columns
+								
+								
+							Clustered 	 -->	A clustered index determines the physical order of data in a table. 
+												For this reason, a table can have only one clustered index.  	
+												
+												==>> Primary key, constraint create clustered indexes automatically
+													 incase there is PK containing multiple columns then there we will be having composite clustered index 
+													 
+												CREATE Clustered Index IX_tblEmployee_Salary 
+												ON tblEmployee (SALARY ASC, Gender)
+							
+													 
+							Non Clustered -->	The data is stored in one place, the index in another place. 
+												The index will have pointers to the storage location of the data. 
+												
+												Create non-Clustered Index IX_tablename_Name
+												ON table(col)
+												
+												In non clustered index a seprate table is maintained as the sorted data 
+												and referrence to the other data
+												 Name 	Row Address
+												 ABC	-----------
+												 XYZ	-----------
+												 JKL	-----------
+							Unique index  -->	is used to enforce uniqueness of key values in the index.
+												Primary key by default is a UNIQUE index 
+												non clustered index can also be Unique 
+												
+												---------------------------------
+												Create Unique non-Clustered Index UIX_tablename_Name
+												ON table(col1,col2)
+												--------------------------------------
+												
+												Whenever a unique key constraint is created a unique index is also created behind the scene
+												 
+												 
+							DROP 		--> 	Primary key index explicit drop is not allowed ie. with the statement 
+												dropping Primary key index will drop Primary key Constraint
+												 
+												 
+							NOte ==>> Primary Key Constraint create clustered unique index
+										Unique key constraint cerates non clustered unique index 
+									
+									-----------------------------------------
+									CREATE UNIQUE INDEX IX_tblEmployee_City
+									ON tblEmployee(City)
+									WITH IGNORE_DUP_KEY
+									------------------------------------
+									if I try to insert 10 rows, out of which 5 rows contain duplicates, then all the 10 rows are rejected. 
+									However, if I want only the 5 duplicate rows to be rejected and accept the non-duplicate 5 rows, 
+									then I can use IGNORE_DUP_KEY option. An example of using IGNORE_DUP_KEY option
+																
+							
+							
+							Advantages and Disadvantages 
+							
+									Diadvantages of Indexes:
+											Additional Disk Space -->  Clustered Index does not, require any additional storage. 
+																		Every Non-Clustered index requires additional space as it is stored separately 
+																		from the table
+																		
+											Insert Update and Delete statements can become slow --> 
+																		When DML (Data Manipulation Language) statements (INSERT, UPDATE, DELETE) modifies data in a table, 
+																		the data in all the indexes also needs to be updated. 
+											
+											What is a covering query? --> 
+																		If all the columns that you have requested in the SELECT clause of query, are present in the index, 
+																		then there is no need to lookup in the table again. The requested columns data can simply be returned from the index.
+																		Lookup is involved as we need to look back in the table for other colums. if lookup not required then it is covering the query 
+																		
+																		A clustered index, always covers a query, since it contains all of the data in a table
+																		Coposite index has high chances to cover a query 
+																		
+																		
+=====================================================================================================================================================	
+
+Views 			 	 -->	A view is nothing more than a saved SQL query. A view can also be considered as a virtual table.
+							View itself will not store data 
+							------------------------------------
+							Create View vWEmployeesByDepartment
+							as
+							Select Id, Name, Salary, Gender, DeptName
+							from tblEmployee
+							join tblDepartment
+							on tblEmployee.DepartmentId = tblDepartment.DeptId
+							--------------------------------------------------
+							
+							Views can be used as a mechanism to implement row and column level security.
+							
+									For example, I want an end user, to have access only to IT Department employees.
+									If I grant him access to the underlying table then he will be able to see everything 
+									To achieve this, I can create a view, which returns only IT Department employees, 
+									and grant the user access to the view and not to the underlying table.
+									
+									And column level can also be achived by excluding the column in select statement of the view 
+									and grant the user access to the view and not to the underlying table.
+									
+									------------------------------------
+									Create View vWEmployeesSalaryHidden
+									as
+									Select Id, Name, Gender, DeptName
+									from tblEmployee
+									join tblDepartment
+									on tblEmployee.DepartmentId = tblDepartment.DeptId
+									--------------------------------------------------
+									Salary column is removed and column level security is implemented 
+									
+									
+							ALTER VIEW viewname 
+							DROP VIEW viewname
+							
+							Update is possible 
+									---------------
+									UPDATE viewname 
+									SET name = 'abcd' WHERE id = 1
+									------------------------------
+									underlying table will be updated 
+									
+							 ==>> 	 If a view is based on multiple tables,
+									 and if you update the view, it may not update the underlying base tables correctly. 
+									 To correctly update a view, that is based on multiple table, INSTEAD OF triggers are used.
+									 
+							Indexed View -->
+									 is just a stored SQL query. 
+									 When, we try to retrieve data from the view, the data is actually retrieved from the underlying base tables
+									 
+									 However, when you create an index, on a view, the view gets materialized. 
+									 This means, the view is now, capable of storing data. In SQL server, 
+									 we call them Indexed views and in Oracle, Materialized views.
+									 
+									 
+							Disadvantages -->
+									-> 	You cannot pass parameters to a view. 
+										Table Valued functions are an excellent replacement for parameterized views.
+									->	Rules and Defaults cannot be associated with views.
+									->	The ORDER BY clause is invalid in views
+									->	Views cannot be based on temporary tables.
+
+=====================================================================================================================================================	
+
+Triggers 	-->
+				Triggers are special types of stored procedures that executed automatically in responce to events
+				DML		-->	INSERT, UPDATE, and DELETE statements are DML statements. 
+							DML triggers are fired, when ever data is modified using INSERT, UPDATE, and DELETE events.
+							
+							1. After triggers (Sometimes called as FOR triggers)
+							2. Instead of triggers
+							---------------------------------------
+							CREATE TRIGGER tr_tblEMployee_ForInsert
+							ON tblEmployee
+							FOR INSERT
+							AS
+							BEGIN
+							 Declare @Id int
+							 Select @Id = Id from inserted
+							END
+							------------------------------
+							
+							
+							example of maintaining an audit table 
+							---------------------------------------
+							CREATE TRIGGER tr_tblEMployee_ForInsert
+							ON tblEmployee
+							FOR INSERT
+							AS
+							BEGIN
+							 Declare @Id int
+							 Select @Id = Id from inserted
+							 
+							 insert into tblEmployeeAudit 
+							 values('New employee with Id  = ' + Cast(@Id as nvarchar(5)) + ' is added at ' + cast(Getdate() as nvarchar(20)))
+							END
+							------------------------------------------------------------------------------------------------------------------
+							CREATE TRIGGER tr_tblEMployee_ForDelete
+							ON tblEmployee
+							FOR DELETE
+							AS
+							BEGIN
+							 Declare @Id int
+							 Select @Id = Id from deleted
+							 
+							 insert into tblEmployeeAudit 
+							 values('An existing employee with Id  = ' + Cast(@Id as nvarchar(5)) + ' is deleted at ' + Cast(Getdate() as nvarchar(20)))
+							END
+							-----------------------------------------------------------------------------------------------------------------------------
+														
+							
+							UPDATE 
+							Triggers make use of 2 special tables, INSERTED and DELETED. 
+							The inserted table contains the updated data and the deleted table contains the old data. 
+							The After trigger for UPDATE event, makes use of both inserted and deleted tables. 
+							
+							---------------------------------------
+							Create trigger tr_tblEmployee_ForUpdate
+							on tblEmployee
+							for Update
+							as
+							Begin
+							 Select * from deleted  -- data before update
+							 Select * from inserted  -- new data after update 
+							End
+							----------------------------------------													
+							Is it possible to UPDATE a CTE?
+							Yes & No, depending on the number of base tables, the CTE is created upon, and the number of base tables affected by the UPDATE statement.
+=====================================================================================================================================================
+CTE 
+				Is it possible to UPDATE a CTE?
+				Yes & No, depending on the number of base tables, the CTE is created upon, and the number of base tables affected by the UPDATE statement
+				
+				below will work 
+				
+				----------------------
+				With Employees_Name_Gender
+				as
+				(
+				 Select Id, Name, Gender from tblEmployee
+				)
+				Update Employees_Name_Gender Set Gender = 'Female' where Id = 1
+				---------------------------------------------------------------
+				
+				below will work 
+				 this will work coz the condition and update is of the same base table 
+				 
+				--------------------------
+				With EmployeesByDepartment
+				as
+				(
+				 Select Id, Name, Gender, DeptName 
+				 from tblEmployee
+				 join tblDepartment
+				 on tblDepartment.DeptId = tblEmployee.DepartmentId
+				)
+				Update EmployeesByDepartment set Gender = 'Male' where Id = 1
+				-------------------------------------------------------------
+				
+				
+				below will not work 
+				as it is containing columns from different base tables for update and condition 
+				
+				---------------------------
+				With EmployeesByDepartment
+				as
+				(
+				 Select Id, Name, Gender, DeptName 
+				 from tblEmployee
+				 join tblDepartment
+				 on tblDepartment.DeptId = tblEmployee.DepartmentId
+				)
+				Update EmployeesByDepartment set 
+				Gender = 'Female', DeptName = 'IT'
+				where Id = 1
+				---------------------------------------------------
+				
+				So in short if, 
+				1. A CTE is based on a single base table, then the UPDATE suceeds and works as expected.
+				2. A CTE is based on more than one base table, and if the UPDATE affects multiple base tables, the update is not allowed and the statement terminates with an error.
+				3. A CTE is based on more than one base table, and if the UPDATE affects only one base table, the UPDATE succeeds(but not as expected always)
+
+
+
+=====================================================================================================================================================
+
+Normalization 
+				minimize data redundancy (data duplication), which in turn ensures data consistency.
+				
+				A table is said to be in 1NF, if
+						1. The data in each column should be atomic. No multiple values, sepearated by comma.
+						2. The table does not contain any repeating column groups (comma sepearated should not split in columns)
+						3. Identify each record uniquely using primary key.
+						
+				A table is said to be in 2NF, if
+						1. The table meets all the conditions of 1NF
+						2. Move redundant data to a separate table
+						3. Create relationship between these tables using foreign keys.
+						
+							1. Disk space wastage
+							2. Data inconsistency
+							3. DML queries (Insert, Update, Delete) can become slow
+							
+							
+				A table is said to be in 3NF, if the table
+						1. Meets all the conditions of 1NF and 2NF
+						2. Does not contain columns (attributes) that are not fully dependent upon the primary key
+						
+
+=====================================================================================================================================================
+
+Pivot -->	
+				table(
+				   Id int primary key,
+				   SalesAgent nvarchar(50),
+				   SalesCountry nvarchar(50),
+				   SalesAmount int
+				)
+								
+				Select SalesAgent, India, US, UK
+				from tblProductSales
+				Pivot
+				(
+				   Sum(SalesAmount) for SalesCountry in ([India],[US],[UK])
+				) as PivotTable
+				
+				-->	incase if there is Id col then exact result will not be returned 
+					so we need to give it inside a derived table 
+				
+				Select SalesAgent, India, US, UK
+				from
+				(
+				   Select SalesAgent, SalesCountry, SalesAmount from tblProductsSale
+				) as SourceTable
+				Pivot
+				(
+				 Sum(SalesAmount) for SalesCountry in (India, US, UK)
+				) as PivotTable
+=====================================================================================================================================================
+
+Error Handeling 		RAISERROR('Error Message', ErrorSeverity, ErrorState)
+						16 means that can be handeled easily 
+						Raiseerror(errormsg,16,1)
+						Begin Tran
+						
+						if (@@error <> 0)
+							rollback transaction
+						else 
+							commit
+							
+							
+						Try Catch 
+						---------
+						BEGIN TRY
+							 { Any set of SQL statements }
+						END TRY
+						BEGIN CATCH
+							 [ Optional: Any set of SQL statements ]
+						END CATCH
+						[Optional: Any other SQL Statements]
+						
+						SELECT
+						   ERROR_NUMBER() 
+						   ERROR_MESSAGE()
+						   ERROR_PROCEDURE()
+						   ERROR_STATE() 
+						   ERROR_SEVERITY() 
+						   ERROR_LINE() 
+						   
+				Transaction 
+						A transaction is a group of commands that change the data stored in a database.
+						A transaction, is treated as a single unit. 
+						A transaction ensures that, either all of the commands succeed, or none of them.
+						
+						1. Begin a transaction.
+						2. Process database commands.
+						3. Check for errors. 
+						   If errors occurred, 
+							   rollback the transaction, 
+						   else, 
+							   commit the transaction
+												   
+						   example 
+						   we have an update statement below 
+						   
+						   BEGIN Transaction
+						   UPDATE table set col = 1
+						   
+							Now if we want to read the data from the table using another connection 
+							then it will fail as the transaction is not yet completed - SELECT * FROM TABLE 
+							
+							Inorder to read uncommited data use below query
+							
+							SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED 
+							
+							
+						 ------------------
+						 Begin Try
+						  Begin Transaction
+						   Update tblMailingAddress set City = 'LONDON' 
+						   where AddressId = 1 and EmployeeNumber = 101
+						   
+						   Update tblPhysicalAddress set City = 'LONDON' 
+						   where AddressId = 1 and EmployeeNumber = 101
+						  Commit Transaction
+						 End Try
+						 Begin Catch
+						  Rollback Transaction
+						 End Catch
+						-----------------------------------------------
+
+						
+				A transaction is a group of database commands that are treated as a single unit. 
+				A successful transaction must pass the "ACID" test, that is, it must be
+					A - Atomic
+					C - Consistent
+					I - Isolated
+					D - Durable
+					
+				Atomic - All statements in the transaction either completed successfully or they were all rolled back.
+							
+				Consistent - All data touched by the transaction is left in a logically consistent state. For example, 
+							if stock available numbers are decremented from tblProductTable, 
+							then, there has to be a related entry in tblProductSales table. 
+							The inventory can't just disappear.
+
+				Isolated - 	The transaction must affect data without interfering with other concurrent transactions, or being interfered with by them4
+							if 2 update statement executed with 2 differnt Transaction then it will not work 
+							Most databases use locking to maintain transaction isolation.
+									
+									
+				Durable - Once a change is made, it is permanent.
+				
+						
+						   
+						  
+=====================================================================================================================================================							
+				
+Subquery 		Select [Id], [Name], [Description]
+				from tblProducts
+				where Id not in (Select Distinct ProductId from tblProductSales)
+
+				Subquery is also known as inner query 
+				Subquery can be easily replaced by joins 
+				
+				Select tblProducts.[Id], [Name], [Description]
+				from tblProducts
+				left join tblProductSales
+				on tblProducts.Id = tblProductSales.ProductId
+				where tblProductSales.ProductId IS NULL
+				
+				a subquery is simply a select statement, 
+				that returns a single value and can be nested inside a SELECT, UPDATE, INSERT, or DELETE statement. 
+				
+				According to MSDN, subqueries can be nested upto 32 levels.
+				
+Corelated Subquery ->  	If the subquery depends on the outer query for its values, 
+						then that sub query is called as a correlated subquery.
+						So, here the subquery is dependent on the outer query for it's value
+						Corelated subquery, cannot be executed independently of the outer query.
+								
+						-------------
+						Select [Name],
+						(Select SUM(QuantitySold) from tblProductSales where ProductId = tblProducts.Id) as TotalQuantity
+						from tblProducts
+						order by Name
+						----------------
+						Corelated Subquery gets executed once for every row selected in the outer query 
+						Outer query will get executed first in coSub and inner incase of subQuery
+						
+						Join vs Subquery
+									join and subqueries will take somewhat give same execution time 
+									incase of corelated subqueries it will take more time 
+									
+									
+									According to MSDN, in some cases where existence must be checked, a join produces better performance. Otherwise, 
+									the nested query must be processed for each result of the outer query. 
+									In such cases, a join approach would yield better results.
+						
+									Select Id, Name, Description
+									from tblProducts
+									where ID IN
+									(
+									 Select ProductId from tblProductSales
+									)
+									
+									CHECKPOINT; 
+									GO 
+									DBCC DROPCLEANBUFFERS; -- Clears query cache
+									Go
+									DBCC FREEPROCCACHE; -- Clears execution plan cache
+									GO
+
+									Select distinct tblProducts.Id, Name, Description
+									from tblProducts
+									inner join tblProductSales
+									on tblProducts.Id = tblProductSales.ProductId
+
+												  
+=====================================================================================================================================================
+Cursor
+
+												
+						Declare @ProductId int
+
+
+						Declare ProductIdCursor CURSOR FOR 
+						Select ProductId from tblProductSales
+						Open ProductIdCursor
+
+						Fetch Next from ProductIdCursor into @ProductId
+
+						While(@@FETCH_STATUS = 0)
+						Begin
+						 
+						 xxxxxx
+						 xxxxxx
+						 
+						 Fetch Next from ProductIdCursor into @ProductId 
+						End
+						
+						CLOSE ProductIdCursor 
+						DEALLOCATE ProductIdCursor
+						
+						
+						
+						
+						this could be done without the cursor 
+						
+						Update tblProductSales
+						set UnitPrice = 
+						 Case 
+						  When Name = 'Product - 55' Then 155
+						  When Name = 'Product - 65' Then 165
+						  When Name like 'Product - 100%' Then 10001
+						 End     
+						from tblProductSales
+						join tblProducts
+						on tblProducts.Id = tblProductSales.ProductId
+						Where Name = 'Product - 55' or Name = 'Product - 65' or 
+						Name like 'Product - 100%'
+						
+						
+=====================================================================================================================================================
+To get the list of different object types (XTYPE) in a database
+						Select Distinct XTYPE from SYSOBJECTS
+
+						Executing the above query on my SAMPLE database returned the following values for XTYPE column from SYSOBJECTS
+						IT - Internal table
+						P - Stored procedure
+						PK - PRIMARY KEY constraint
+						S - System table 
+						SQ - Service queue
+						U - User table
+						V - View			
+
+						Select * from SYSOBJECTS where XTYPE= '--'
+						
+=====================================================================================================================================================						
+Re rnunable query 	
+												
+						Use [Sample]
+						If not exists (select * from information_schema.tables where table_name = 'tblEmployee')
+						Begin
+						 Create table tblEmployee
+						 (
+						  ID int identity primary key,
+						  Name nvarchar(100),
+						  Gender nvarchar(10),
+						  DateOfBirth DateTime
+						 )
+						END
+						ELSE
+						BEGIN
+							-----
+						END
+	
+	
+=====================================================================================================================================================
+
+Merge 			The merge statement joins the target table to the source table by using a common column in both the tables. 
+				Based on how the rows match up as a result of the join, we can then perform insert, 
+				update, and delete on the target table. 
+				
+				MERGE [TARGET] AS T
+				USING [SOURCE] AS S
+				   ON [JOIN_CONDITIONS]
+				 WHEN MATCHED THEN 
+					  [UPDATE STATEMENT]
+				 WHEN NOT MATCHED BY TARGET THEN
+					  [INSERT STATEMENT] 
+				 WHEN NOT MATCHED BY SOURCE THEN
+					  [DELETE STATEMENT]
+					  
+					  
+				MERGE [dbo].[EmployeesBackup] AS Target
+				USING [dbo].[Employees] AS Source 
+				ON Target.Id = Source.Id
+				WHEN NOT MATCHED BY Target THEN 
+					INSERT  
+					VALUES(Source.Id,Source.Name,Source.Gender,Source.Salary,0,GETDATE())
+				WHEN MATCHED THEN 
+					UPDATE SET
+					TARGET.MDATE = GETDATE(),
+					TARGET.SALARY = SOURCE.SALARY
+				WHEN NOT MATCHED BY SOURCE 
+				THEN 
+					UPDATE SET TARGET.ISDELETED = 1,
+					MDATE = GETDATE();
+					
+					
+				CREATE TRIGGER DBO.UPDATEEMPLOYEESCD
+				ON [dbo].[Employees]
+				FOR UPDATE 
+				AS
+					DECLARE @id int
+					SELECT TOP 1 @id = ID FROM Inserted 
+					IF EXISTS (SELECT ID FROM [dbo].[EmployeesSCD] WHERE ID = @id and Ended is NULL)
+					BEGIN
+						UPDATE [EmployeesSCD] 
+						SET ENDED = GETDATE(), isActive = 0
+						WHERE ID = @id
+					END 
+					INSERT INTO [dbo].[EmployeesSCD]( [ID], [Name], [Gender], [Salary], [Current],[Started],[Ended],[isActive])
+					SELECT [ID], [Name], [Gender], [Salary], 1, GETDATE(), NULL,0 FROM INSERTED 
+					
+									  
+=====================================================================================================================================================
+
+Concurrent Transaction
+				Databases are powerful systems and are potentially used by many users or applications at the same time. 
+				Allowing concurrent transactions is essential for performance but may introduce concurrency issues when 
+				two or more transactions are working with the same data at the same time.
+				
+				Some of the common concurrency problems
+					Dirty Reads
+					Lost Updates
+					Nonrepeatable Reads
+					Phantom Reads
+					
+				One way to slove these concurency problems is allowing one user to perform one transaction at a time 
+				this will lead to long waiting queues and longer execution time 
+				
+				Even if it is allowed to execute all transaction parallely then it may cause concurrency problems 
+				
+				for this to balance concurency problems and performance, SQL provides Isolation Levels 
+					  
+				SQL Server provides different transaction isolation levels, to balance concurrency problems and performance depending on our application needs.
+					Read Uncommitted
+					Read Committed
+					Repeatable Read
+					Snapshot
+					Serializable
+					
+					
+				Dirty Read
+							A dirty read happens when one transaction is permitted to read data that has been modified by 
+							another transaction that has not yet been committed. 
+							if the first transaction is rolled back after the second reads the data, 
+							the second transaction has dirty data that does not exist anymore.
+							
+							Read Uncommitted transaction isolation level is the only isolation level that has dirty read side effect.
+							This is the least restrictive of all the isolation levels. 
+							When this transaction isolation level is set, it is possible to read uncommitted or dirty data.
+							NoLock
+							
+							to read uncommited data we have two options 
+							-> NOLOCK
+									Select * from tblInventory (NOLOCK) where Id=1
+							-> Read Uncommitted transaction isolation level
+									Set Transaction Isolation Level Read Uncommitted
+									
+				Lost Updates
+							Lost update problem happens when 2 transactions read and update the same data.
+							
+							Both Read Uncommitted and Read Committed transaction isolation levels have the lost update side effect
+							
+							
+				NON Repeatable Read
+							Non repeatable read problem happens when one transaction reads the same data twice and another transaction 
+							updates that data in between the first and second read of transaction one. 
+							 
+							To fix the non-repeatable read problem, set transaction isolation level of Transaction 1 to repeatable read. 
+							This will ensure that the data that Transaction 1 has read, will be prevented from being updated or deleted elsewhere. 
+							This solves the non-repeatable read problem. 
+										
+							Set Transaction Isolation Level Repeated READ
+							
+							
+				Phontom
+							Phantom read happens when one transaction executes a query twice and it gets a different number 
+							of rows in the result set each time. This happens when a second transaction inserts 
+							a new row that matches the WHERE clause of the query executed by the first transaction. 
+							
+							Set Transaction Isolation Level Serializable
+							
+							
+				Difference between repeatable read and serializable
+				
+							 Repeatable read isolation level ensures that the data that one transaction has read, 
+							 will be prevented from being updated or deleted by any other transaction, 
+							 but it doe not prevent new rows from being inserted by other transactions resulting in phantom read concurrency problem.
+							 
+							 
+							 Serializable isolation level ensures that the data that one transaction has read, 
+							 will be prevented from being updated or deleted by any other transaction. 
+							 It also prevents new rows from being inserted by other transactions, 
+							 so this isolation level prevents both non-repeatable read and phantom read problems.
+							 
+				What is the difference between serializable and snapshot isolation levels
+							
+							Serializable isolation is implemented by acquiring locks which means the resources are locked for the duration 
+							of the current transaction. This isolation level does not have any concurrency side effects but at the cost of 
+							significant reduction in concurrency.
+
+							Snapshot isolation doesn't acquire locks, it maintains versioning in Tempdb. Since, 
+							snapshot isolation does not lock resources, it can significantly increase the number of concurrent transactions 
+							while providing the same level of data consistency as serializable isolation does.
+							
+							
+							
+							Alter database SampleDB SET ALLOW_SNAPSHOT_ISOLATION ON
+							Set transaction isolation level snapshot
+																		
+				Snapshot isolation transaction aborted due to update conflict.You cannot use snapshot isolation to access table 
+				'dbo.tblInventory' directly or indirectly in database 'SampleDB' to update, delete, or insert the row 
+				that has been modified or deleted by another transaction. Retry the transaction or change the 
+				isolation level for the update/delete statement.
+
+=====================================================================================================================================================
+Deadlock			
+				In a database, a deadlock occurs when two or more processes have a resource locked, and each process requests a 
+				lock on the resource that another process has already locked. Neither of the transactions here can move forward, 
+				as each one is waiting for the other to release the lock
+				
+				When deadlocks occur, SQL Server will choose one of processes as the deadlock victim and rollback that process, 
+				so the other process can move forward. 
+
+				SQL Deadlock detection
+							Lock monitor thread in SQL Server, runs every 5 seconds by default to detect if there are any deadlocks. 
+							If the lock monitor thread finds deadlocks, the deadlock detection interval will drop from 5 seconds 
+							to as low as 100 milliseconds 
+
+				What happens when a deadlock is detected
+							When a deadlock is detected, the Database Engine ends the deadlock by choosing one of the threads as the deadlock victim. 
+							The deadlock victim's transaction is then rolled back and returns a 1205 error to the application. 
+									
+				What is DEADLOCK_PRIORITY
+							By default, SQL Server chooses a transaction as the deadlock victim that is least expensive to roll back. 
+							However, a user can specify the priority of sessions in a deadlock situation using the SET DEADLOCK_PRIORITY statement. 
+							The session with the lowest deadlock priority is chosen as the deadlock victim.				
+									
+				Deadlock priority can be set manually 
+							SET DEADLOCK_PRIORITY NORMAL
+							DEADLOCK_PRIORITY 
+							1. The default is Normal
+							2. Can be set to LOW, NORMAL, or HIGH
+							3. Can also be set to a integer value in the range of -10 to 10.
+							 LOW : -5
+							 NORMAL : 0
+							 HIGH : 5
+							 
+				Video 81,82,83
+				
+				
+
+=====================================================================================================================================================
+
+Except 			
+				Works as MINUS 
+				SELECT id,name from T1
+				Except
+				SELECT id,name from T2
+				 
+				we will get records present in table 1 but not in 2
+				
+Intersect 		
+				Intersect operator retrieves the common records from both the left and the right query of the Intersect operator.
+				Select Id, Name, Gender from TableA
+				Intersect
+				Select Id, Name, Gender from TableB
+				
+				INTERSECT filters duplicates and returns only DISTINCT rows that are common between the LEFT and Right Query, 
+=====================================================================================================================================================										
+
+Cross Apply and Outer Apply
+				used to apply join in case of a table valued functions
+				Cross apply is inner 
+				Outer apply is left 
+				
+				
+				Select D.DepartmentName, E.Name, E.Gender, E.Salary
+				from Department D
+				Outer Apply fn_GetEmployeesByDepartmentId(D.Id) E
+				
+				Create function fn_GetEmployeesByDepartmentId(@DepartmentId int)
+				Returns Table
+				as
+				Return
+				(
+					Select Id, Name, Gender, Salary, DepartmentId
+					from Employee where DepartmentId = @DepartmentId
+				)
+				Go
+														
+				The following query returns the employees of the department with Id =1.
+				Select * from fn_GetEmployeesByDepartmentId(1)
+				
+				How does Cross Apply and Outer Apply work
+						The APPLY operator introduced in SQL Server 2005, is used to join a table to a table-valued function.
+						The Table Valued Function on the right hand side of the APPLY operator gets called for each row from the left 
+						(also called outer table) table.
+						Cross Apply returns only matching rows (semantically equivalent to Inner Join)
+						Outer Apply returns matching + non-matching rows (semantically equivalent to Left Outer Join). 
+						The unmatched columns of the table valued function will be set to NULL.
+
+=====================================================================================================================================================	
+
+SELECT INTO 
+				Copy all rows and columns from an existing table into a new table. 
+				This is extremely useful when you want to make a backup copy of the existing table.
+				SELECT * INTO EmployeesBackup FROM Employees
+				
+				To create table withot inserting values 
+				SELECT * INTO EmployeesBackup FROM Employees
+				WHERE 1 <> 1
+				
+				INSERT into will always work for non exsisting table 
+				that means it will create a table and then it will insert into it 
+				suppose if we already have a table designed then we can use
+				
+				INSET INTO Employees
+				SELECT * FROM EmployeesBackup
+				
+
+=====================================================================================================================================================	
+
+Table Valued parameter
+
+				CREATE TYPE EmpTableType AS TABLE
+				(
+				 Id INT PRIMARY KEY,
+				 Name NVARCHAR(50),
+				 Gender NVARCHAR(10)
+				)
+				
+				CREATE PROCEDURE spInsertEmployees
+				@EmpTableType EmpTableType READONLY
+				AS
+				BEGIN
+				 INSERT INTO Employees
+				 SELECT * FROM @EmpTableType
+				END
+				
+				 Table valued parameters must be passed as read-only to stored procedures, functions etc. 
+				 This means you cannot perform DML operations like INSERT, UPDATE or DELETE on a table-valued parameter 
+				 in the body of a function, stored procedure etc.
+
+=====================================================================================================================================================											
+Grouping Sets 	
+				To achieve this we will have to combine the fourth query using UNION ALL as shown below. 
+				Select Country, Gender, Sum(Salary) as TotalSalary
+				From Employees  
+				Group By Country, Gender
+
+				UNION ALL
+
+				Select Country, NULL, Sum(Salary) as TotalSalary
+				From Employees  
+				Group By Country
+
+				UNION ALL
+
+				Select NULL, Gender, Sum(Salary) as TotalSalary
+				From Employees  
+				Group By Gender
+
+				UNION ALL
+
+				Select NULL, NULL, Sum(Salary) as TotalSalary
+				From Employees 
+				
+				
+				the amount of T-SQL code that you have to write will be greatly reduced. 
+				The following Grouping Sets query produce the same result as the above UNION ALL query.
+
+				Select Country, Gender, Sum(Salary) TotalSalary
+				From Employees 
+				Group BY 
+					  GROUPING SETS 
+					  ( 
+							(Country, Gender), -- Sum of Salary by Country and Gender
+							(Country),   -- Sum of Salary by Country
+							(Gender) ,   -- Sum of Salary by Gender
+							()     -- Grand Total
+					  )
+
+Cube 			A query to retrieve Sum of Salary grouped by all combinations of the following 2 columns as well as Grand Total.
+				Country,
+				Gender
+				Using Cube with Group By
+				SELECT Country, Gender, SUM(Salary) AS TotalSalary
+				FROM Employees
+				GROUP BY Cube(Country, Gender)
+				
+				The above query is equivalent to the following Grouping Sets query.
+
+				SELECT Country, Gender, SUM(Salary) AS TotalSalary
+				FROM Employees
+				GROUP BY 
+				 GROUPING SETS
+				 (
+				  (Country, Gender),
+				  (Country),
+				  (Gender),
+				  ()
+				 )
+
+Rollup 			gives aggregate along with the grand total 
+				SELECT Country, SUM(Salary) AS TotalSalary
+				FROM Employees
+				GROUP BY ROLLUP(Country)
+
+														
+=====================================================================================================================================================
+
+Over Clause 	The OVER clause combined with PARTITION BY is used to break up data into partitions
+				function (...) OVER (PARTITION BY col1, Col2, ...)
+				
+				SELECT Name, Salary, Gender, 
+					COUNT(Gender) OVER(PARTITION BY Gender) AS GenderTotals,
+					AVG(Salary) OVER(PARTITION BY Gender) AS AvgSal,
+					MIN(Salary) OVER(PARTITION BY Gender) AS MinSal,
+					MAX(Salary) OVER(PARTITION BY Gender) AS MaxSal
+				FROM Employees
+				
+Row_Number		Returns the sequential number of a row starting at 1
+				ORDER BY clause is required
+				PARTITION BY clause is optional
+				
+				SELECT Name, Gender, Salary,
+					ROW_NUMBER() OVER (PARTITION BY Gender ORDER BY Gender) AS RowNumber
+				FROM Employees
+				
+Rank funtoins 	Returns a rank starting at 1 based on the ordering of rows imposed by the ORDER BY clause
+				ORDER BY clause is required
+				PARTITION BY clause is optional
+				When the data is partitioned, rank is reset to 1 when the partition changes
+				
+				For example : If you have 2 rows at rank 1 and you have 5 rows in total.
+				RANK() returns - 1, 1, 3, 4, 5
+				DENSE_RANK returns - 1, 1, 2, 3, 4
+				
+				SELECT Name, Salary, Gender,
+					RANK() OVER (ORDER BY Salary DESC) AS [Rank],
+					DENSE_RANK() OVER (ORDER BY Salary DESC) AS DenseRank
+				FROM Employees
+
+Running total	
+				So when computing running total, it is better to use a column that has unique data in the ORDER BY clause.
+				SELECT Name, Gender, Salary, 
+					SUM(Salary) OVER (ORDER BY ID) AS RunningTotal
+				FROM Employees
+				
+NTILE function 
+				1. Introduced in SQL Server 2005
+				2. ORDER BY Clause is required
+				3. PARTITION BY clause is optional
+				4. Distributes the rows into a specified number of groups	
+					
+					For example
+					   NTILE(2) of 10 rows divides the rows in 2 Groups (5 in each group)
+					   NTILE(3) of 10 rows divides the rows in 3 Groups (4 in first group, 3 in 2nd & 3rd group)
+								
+				Syntax : NTILE (Number_of_Groups) OVER (ORDER BY Col1, Col2, ...)
+					
+Lead And Lag	Lead function is used to access subsequent row data along with current row data
+				Lag function is used to access previous row data along with current row data
+				ORDER BY clause is required
+				PARTITION BY clause is optional		
+
+				Syntax
+				LEAD(Column_Name, Offset, Default_Value) OVER (ORDER BY Col1, Col2, ...)
+				LAG(Column_Name, Offset, Default_Value) OVER (ORDER BY Col1, Col2, ...)
+				
+				Offset is by how many rows 
+				
+				
+				SELECT Name, Gender, Salary
+				Lead(Salary) OVER (ORDER BY Salary) AS Lead
+				FROM Employee
+				
+FIRST_VALUE		Retrieves the first value from the specified column
+				ORDER BY clause is required
+				PARTITION BY clause is optional	
+				
+				SELECT Name, Gender, Salary,
+
+Windows Funtions 
+				In SQL Server we have different categories of window functions
+					Aggregate functions - AVG, SUM, COUNT, MIN, MAX etc..
+					Ranking functions - RANK, DENSE_RANK, ROW_NUMBER etc..
+					Analytic functions - LEAD, LAG, FIRST_VALUE, LAST_VALUE etc...
+					
+				OVER Clause defines the partitioning and ordering of a rows (i.e a window) for the above functions to operate on.
+					ORDER BY : Defines the logical order of the rows
+					PARTITION BY : Divides the query result set into partitions. The window function is applied to each partition separately.
+					ROWSor RANGE clause : Further limits the rows within the partition by specifying start and end points within the partition.
+					
+				The default for ROWS or RANGE clause is
+				RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+				
+				
+				SELECT Name,Gender,Salary,
+				AVG(SALARY) OVER (ORDER BY SALARY) FROM Employees
+				
+				if above is executed the result will give different average of all 
+				1st will get its own salary as average as it will devide by one 
+				last will get correct average as it be divided by total number of salary
+				it will work as RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+				
+				UNBOUNDED PRECEDING AND CURRENT ROW -> 	means that start from 1st row and till the current row 
+														so using this if we exec this statement 
+														SELECT Name,Gender,Salary,
+														COUNT(SALARY) OVER (ORDER BY SALARY)
+														FROM Employees
+														this will give the numbers stating with 1 to n
+														
+														SELECT Name,Gender,Salary,
+														SUM(SALARY) OVER (ORDER BY SALARY)
+														FROM Employees
+														this will give clumative sum/ running total
+														CURRENT ROW means will calculate till that same row from begning 
+														
+				UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING -> means that unbounded from 1st row till last ROW
+				
+																SELECT Name,Gender,Salary,
+																	AVG(SALARY) OVER (ORDER BY SALARY RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
+																	,SUM(SALARY) OVER (ORDER BY SALARY RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)
+																	FROM Employees
+																	
+				1 PRECEDING AND 1 FOLLOWING -> will calculate for 1 before and one further
+				
+				
+				RANGE VS ROWS 	-> So, the main difference between ROWS and RANGE is in the way duplicate rows are treated. 
+									ROWS treat duplicates as distinct values, where as RANGE treats them as a single entity.
+									preferrend to use ROWS
+
+LAST VALUE 		LAST_VALUE function not working as expected : In the following example, LAST_VALUE function does not return the name of the highest paid employee. 
+					This is because we have not specified an explicit value for ROWS or RANGE clause. 
+					As a result it is using it's default value RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW.
+														
+
+=====================================================================================================================================================
+
+CHOOSE FUNTION	
+				Returns the item at the specified index from the list of available values
+				The index position starts at 1 and NOT 0 (ZERO)
+
+				Syntax : CHOOSE ( index, val_1, val_2, ... )
+				
+				SELECT Name, DateOfBirth, 
+					CASE DATEPART(MM, DateOfBirth)
+					WHEN 1 THEN 'JAN'
+					WHEN 2 THEN 'FEB'
+					WHEN 3 THEN 'MAR'
+					WHEN 4 THEN 'APR'
+					WHEN 5 THEN 'MAY'
+					WHEN 6 THEN 'JUN'
+					WHEN 7 THEN 'JUL'
+					WHEN 8 THEN 'AUG'
+					WHEN 9 THEN 'SEP'
+					WHEN 10 THEN 'OCT'
+					WHEN 11 THEN 'NOV'
+					WHEN 12 THEN 'DEC'
+					END
+					   AS [MONTH]
+				FROM Employees
+				
+				
+				SELECT Name, DateOfBirth,CHOOSE(DATEPART(MM, DateOfBirth), 
+					   'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 
+					   'SEP', 'OCT', 'NOV', 'DEC') AS [MONTH]
+				FROM Employees
+				
+IFF 			Returns one of two the values, depending on whether the Boolean expression evaluates to true or false
+				IIF is a shorthand way for writing a CASE expression
+				
+				
+				Using CASE statement
+				SELECT Name, GenderId, 
+					CASE WHEN GenderId = 1
+					  THEN 'Male'
+					  ELSE 'Female'
+					END AS Gender
+				FROM Employees
+
+				Using IIF function
+				SELECT Name, GenderId, IIF(GenderId = 1, 'Male', 'Female') AS Gender
+				FROM Employees
+				
+				
+TRY PARSE 		Converts a string to Date/Time or Numeric type
+				Returns NULL if the provided string cannot be converted to the specified data type
+				SELECT TRY_PARSE('99' AS INT) AS Result
+				
+				The string cannot be converted to INT, so TRY_PARSE returns NULL
+				
+				SELECT IIF(TRY_PARSE('ABC' AS INT) IS NULL, 'Conversion Failed', 
+				'Conversion Successful') AS Result
+				
+TRY CONVERT 	Converts a value to the specified data type
+				Returns NULL if the provided value cannot be converted to the specified data type
+				If you request a conversion that is explicitly not permitted, then TRY_CONVERT fails with an error
+				
+				TRY_PARSE can only be used for converting from string to date/time or number data types where as TRY_CONVERT can be used for any general type conversions.
+				For example, you can use TRY_CONVERT to convert a string to XML data type, where as you can do the same using TRY_PARSE
+
+				Converting a string to XML data type using TRY_CONVERT
+				SELECT TRY_CONVERT(XML, '[root][child/][/root]') AS [XML]
+				
+				
+EOMONTH 		Returns the last day of the month of the specified date
+
+				Syntax : EOMONTH ( start_date [, month_to_add ] )
+								
+				start_date : The date for which to return the last day of the month
+				month_to_add : Optional. Number of months to add to the start_date. EOMONTH adds the specified number of months to start_date, 
+				and then returns the last day of the month for the resulting date.
+
+=====================================================================================================================================================
+Query Plan Cache
+				
+				In SQl Server, every query requires a query plan before it is executed. When you run a query the first time, 
+				the query gets compiled and a query plan is generated. This query plan is then saved in sql server query plan cache.
+				
+				Next time when we run the same query, the cached query plan is reused. 
+				This means sql server does not have to create the plan again for that same query. So reusing a query plan can increase the performance. 
+				
+				How to check what is in SQL Server plan cache
+					To see what is in SQL Server plan cache we will make use of the following 3 dynamic management views and functions provided by sql server
+					1. sys.dm_exec_cached_plans
+					2. sys.dm_exec_sql_text
+					3. sys.dm_exec_query_plan
+					
+				Use the following query to see what is in the plan cache
+
+					SELECT cp.usecounts, cp.cacheobjtype, cp.objtype, st.text, qp.query_plan
+					FROM sys.dm_exec_cached_plans AS cp
+					CROSS APPLY sys.dm_exec_sql_text(plan_handle) AS st
+					CROSS APPLY sys.dm_exec_query_plan(plan_handle) AS qp
+					ORDER BY cp.usecounts DESC
+
+				To remove all elements from the plan cache use the following command
+					DBCC FREEPROCCACHE
+					
+				In older versions of SQL Server up to SQL Server 6.5 only stored procedure plans are cached. The query plans for Adhoc sql statements or dynamic sql 
+				statements are not cached, so they get compiled every time. With SQL Server 7, and later versions the query plans for Adhoc sql statements and 
+				dynamic sql statements are also cached.
+
+
+=====================================================================================================================================================
+
+				
+					
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
